@@ -532,6 +532,7 @@ function render() {
   drawMountains();
 
   const baseSegment = findSegment(player.z);
+  if (!baseSegment || !baseSegment.p || !baseSegment.p.world || !baseSegment.p2) return; // Safety check
   const baseIndex = Math.floor(player.z / SEGMENT_LENGTH) % segments.length;
   const basePercent = (player.z % SEGMENT_LENGTH) / SEGMENT_LENGTH;
   const playerY = baseSegment.p.world.y + (baseSegment.p2.world.y - baseSegment.p.world.y) * basePercent;
@@ -1266,13 +1267,19 @@ function gameLoop(timestamp) {
 const startBtn = document.getElementById('startBtn');
 function startGame() {
   try {
+    if (!segments || segments.length === 0) {
+      console.log('Building track...');
+      buildTrack();
+      addSprites();
+      initTraffic();
+    }
     document.getElementById('start-screen').style.display = 'none';
     initAudio();
     resetGame();
     gameRunning = true;
     lastTime = 0;
     requestAnimationFrame(gameLoop);
-    console.log('Game started!');
+    console.log('Game started! Segments:', segments.length);
   } catch (e) {
     console.error('Game start error:', e);
     alert('エラー: ' + e.message);
