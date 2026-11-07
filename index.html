@@ -218,6 +218,7 @@
 
   // --- Project ---
   function project(p, cameraX, cameraY, cameraZ, cameraDepth, width, height, roadWidth) {
+    if (!p || !p.world) return;
     p.camera = p.camera || {};
     p.camera.x = p.world.x - cameraX;
     p.camera.y = p.world.y - cameraY;
@@ -298,100 +299,116 @@
 
   // --- Render ---
   function render() {
-    ctx.clearRect(0, 0, W, H);
-    
-    // Sky
-    const skyGrad = ctx.createLinearGradient(0, 0, 0, H * 0.5);
-    skyGrad.addColorStop(0, '#000022');
-    skyGrad.addColorStop(1, '#1a2a5a');
-    ctx.fillStyle = skyGrad;
-    ctx.fillRect(0, 0, W, H * 0.5);
-    
-    // Stars
-    ctx.fillStyle = '#fff';
-    for (let i = 0; i < 50; i++) {
-      const sx = (i * 137.5 + player.z * 0.001) % W;
-      const sy = (i * 97.3) % (H * 0.35);
-      const ss = (Math.sin(player.totalTime * 2 + i) + 1) * 1.5;
-      ctx.fillRect(sx, sy, ss, ss);
-    }
-    
-    // Mountains
-    ctx.fillStyle = '#0a1a3a';
-    ctx.beginPath();
-    ctx.moveTo(0, H * 0.45);
-    for (let i = 0; i <= W; i += 3) {
-      const h = Math.sin(i * 0.003 + player.z * 0.00005) * 40 +
-                Math.sin(i * 0.007 + 1) * 25 +
-                Math.sin(i * 0.001) * 60;
-      ctx.lineTo(i, H * 0.42 - h);
-    }
-    ctx.lineTo(W, H * 0.5);
-    ctx.lineTo(0, H * 0.5);
-    ctx.fill();
-    
-    const baseSegment = findSegment(player.z);
-    if (!baseSegment || !baseSegment.p || !baseSegment.p.world || !baseSegment.p2) return;
-    
-    const baseIndex = Math.floor(player.z / SEGMENT_LENGTH) % segments.length;
-    const basePercent = (player.z % SEGMENT_LENGTH) / SEGMENT_LENGTH;
-    const playerY = baseSegment.p.world.y + (baseSegment.p2.world.y - baseSegment.p.world.y) * basePercent;
-    
-    let maxY = H;
-    let x = 0;
-    let dx = -(baseSegment.curve * basePercent);
-    
-    // Project segments
-    const projected = [];
-    for (let n = 0; n < DRAW_DISTANCE; n++) {
-      const i = (baseIndex + n) % segments.length;
-      const seg = segments[i];
-      if (!seg || !seg.p || !seg.p2) continue;
+    try {
+      ctx.clearRect(0, 0, W, H);
       
-      const looped = (baseIndex + n) >= segments.length;
-      const camZ = player.z - (looped ? trackLength : 0);
+      // Sky
+      const skyGrad = ctx.createLinearGradient(0, 0, 0, H * 0.5);
+      skyGrad.addColorStop(0, '#000022');
+      skyGrad.addColorStop(1, '#1a2a5a');
+      ctx.fillStyle = skyGrad;
+      ctx.fillRect(0, 0, W, H * 0.5);
       
-      project(seg.p, player.x * ROAD_WIDTH / 2 - x, playerY + CAMERA_HEIGHT, camZ, CAMERA_DEPTH, W, H, ROAD_WIDTH);
-      project(seg.p2, player.x * ROAD_WIDTH / 2 - x - dx, playerY + CAMERA_HEIGHT, camZ, CAMERA_DEPTH, W, H, ROAD_WIDTH);
-      
-      x += dx;
-      dx += seg.curve;
-      
-      if (!seg.p.camera || !seg.p2.screen) continue;
-      if (seg.p.camera.z <= CAMERA_DEPTH || seg.p2.screen.y >= maxY) continue;
-      
-      projected.push({ seg, n });
-      maxY = seg.p2.screen.y;
-    }
-    
-    // Draw
-    for (let i = projected.length - 1; i >= 0; i--) {
-      const { seg } = projected[i];
-      const p1 = seg.p.screen;
-      const p2 = seg.p2.screen;
-      const isDark = seg.color === 'dark';
-      
-      // Ground
-      ctx.fillStyle = isDark ? '#0a3a0a' : '#0b4a0b';
-      ctx.fillRect(0, p2.screen.y, W, p1.screen.y - p2.screen.y);
-      
-      // Rumble strips
-      ctx.fillStyle = isDark ? '#cc0000' : '#ffffff';
-      drawTrapezoid(p1.screen.x, p1.screen.y, p1.screen.w * 1.15, p2.screen.x, p2.screen.y, p2.screen.w * 1.15);
-      
-      // Road
-      ctx.fillStyle = isDark ? '#333333' : '#3a3a3a';
-      drawTrapezoid(p1.screen.x, p1.screen.y, p1.screen.w, p2.screen.x, p2.screen.y, p2.screen.w);
-      
-      // Lane
-      if (!isDark) {
-        ctx.fillStyle = '#ffffff';
-        drawTrapezoid(p1.screen.x, p1.screen.y, p1.screen.w * 0.01, p2.screen.x, p2.screen.y, p2.screen.w * 0.01);
+      // Stars
+      ctx.fillStyle = '#fff';
+      for (let i = 0; i < 50; i++) {
+        const sx = (i * 137.5 + player.z * 0.001) % W;
+        const sy = (i * 97.3) % (H * 0.35);
+        const ss = (Math.sin(player.totalTime * 2 + i) + 1) * 1.5;
+        ctx.fillRect(sx, sy, ss, ss);
       }
+      
+      // Mountains
+      ctx.fillStyle = '#0a1a3a';
+      ctx.beginPath();
+      ctx.moveTo(0, H * 0.45);
+      for (let i = 0; i <= W; i += 3) {
+        const h = Math.sin(i * 0.003 + player.z * 0.00005) * 40 +
+                  Math.sin(i * 0.007 + 1) * 25 +
+                  Math.sin(i * 0.001) * 60;
+        ctx.lineTo(i, H * 0.42 - h);
+      }
+      ctx.lineTo(W, H * 0.5);
+      ctx.lineTo(0, H * 0.5);
+      ctx.fill();
+      
+      const baseSegment = findSegment(player.z);
+      if (!baseSegment || !baseSegment.p || !baseSegment.p.world || !baseSegment.p2) {
+        // Draw a simple fallback
+        ctx.fillStyle = '#1a1a1a';
+        ctx.fillRect(0, H * 0.5, W, H * 0.5);
+        drawDashboard();
+        return;
+      }
+      
+      const baseIndex = Math.floor(player.z / SEGMENT_LENGTH) % segments.length;
+      const basePercent = (player.z % SEGMENT_LENGTH) / SEGMENT_LENGTH;
+      const playerY = baseSegment.p.world.y + (baseSegment.p2.world.y - baseSegment.p.world.y) * basePercent;
+      
+      let maxY = H;
+      let x = 0;
+      let dx = -(baseSegment.curve * basePercent);
+      
+      // Project segments
+      const projected = [];
+      for (let n = 0; n < DRAW_DISTANCE; n++) {
+        const i = (baseIndex + n) % segments.length;
+        const seg = segments[i];
+        if (!seg || !seg.p || !seg.p2) continue;
+        
+        const looped = (baseIndex + n) >= segments.length;
+        const camZ = player.z - (looped ? trackLength : 0);
+        
+        project(seg.p, player.x * ROAD_WIDTH / 2 - x, playerY + CAMERA_HEIGHT, camZ, CAMERA_DEPTH, W, H, ROAD_WIDTH);
+        project(seg.p2, player.x * ROAD_WIDTH / 2 - x - dx, playerY + CAMERA_HEIGHT, camZ, CAMERA_DEPTH, W, H, ROAD_WIDTH);
+        
+        x += dx;
+        dx += seg.curve;
+        
+        if (!seg.p.camera || !seg.p2.screen) continue;
+        if (seg.p.camera.z <= CAMERA_DEPTH || seg.p2.screen.y >= maxY) continue;
+        
+        projected.push({ seg, n });
+        maxY = seg.p2.screen.y;
+      }
+      
+      // Draw
+      for (let i = projected.length - 1; i >= 0; i--) {
+        const { seg } = projected[i];
+        const p1 = seg.p.screen;
+        const p2 = seg.p2.screen;
+        const isDark = seg.color === 'dark';
+        
+        // Ground
+        ctx.fillStyle = isDark ? '#0a3a0a' : '#0b4a0b';
+        ctx.fillRect(0, p2.screen.y, W, p1.screen.y - p2.screen.y);
+        
+        // Rumble strips
+        ctx.fillStyle = isDark ? '#cc0000' : '#ffffff';
+        drawTrapezoid(p1.screen.x, p1.screen.y, p1.screen.w * 1.15, p2.screen.x, p2.screen.y, p2.screen.w * 1.15);
+        
+        // Road
+        ctx.fillStyle = isDark ? '#333333' : '#3a3a3a';
+        drawTrapezoid(p1.screen.x, p1.screen.y, p1.screen.w, p2.screen.x, p2.screen.y, p2.screen.w);
+        
+        // Lane
+        if (!isDark) {
+          ctx.fillStyle = '#ffffff';
+          drawTrapezoid(p1.screen.x, p1.screen.y, p1.screen.w * 0.01, p2.screen.x, p2.screen.y, p2.screen.w * 0.01);
+        }
+      }
+      
+      // Dashboard
+      drawDashboard();
+    } catch (e) {
+      console.error('Render error:', e);
+      // Draw fallback
+      ctx.fillStyle = '#1a1a1a';
+      ctx.fillRect(0, 0, W, H);
+      ctx.fillStyle = '#ff4400';
+      ctx.font = '20px Courier New';
+      ctx.fillText('ERROR: ' + e.message, 10, 30);
     }
-    
-    // Dashboard
-    drawDashboard();
   }
 
   function drawTrapezoid(x1, y1, w1, x2, y2, w2) {
