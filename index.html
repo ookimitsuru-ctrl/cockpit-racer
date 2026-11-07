@@ -386,6 +386,7 @@ function project(p, cameraX, cameraY, cameraZ, cameraDepth, width, height, roadW
 
 // --- Find segment ---
 function findSegment(z) {
+  if (!segments || segments.length === 0) return null;
   return segments[Math.floor(z / SEGMENT_LENGTH) % segments.length];
 }
 
@@ -401,6 +402,8 @@ function update(dt) {
   if (!gameRunning) return;
 
   const playerSegment = findSegment(player.z);
+  if (!playerSegment) return; // Safety check
+
   const speedPercent = player.speed / player.maxSpeed;
   const dx = dt * 2 * speedPercent;
 
@@ -1245,6 +1248,12 @@ function gameLoop(timestamp) {
   lastTime = timestamp;
 
   if (gameRunning) {
+    if (segments.length === 0) {
+      console.error('No segments! Rebuilding track...');
+      buildTrack();
+      addSprites();
+      initTraffic();
+    }
     update(dt);
     updateAudio();
     render();
