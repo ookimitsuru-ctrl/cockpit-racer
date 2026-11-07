@@ -270,26 +270,33 @@ window.addEventListener('keyup', e => { keys[e.code] = false; e.preventDefault()
 function addTouch(id, code) {
   const el = document.getElementById(id);
   if (!el) { console.error('Touch button not found:', id); return; }
-  el.addEventListener('touchstart', e => {
+  
+  // Pointer events (works for both touch and mouse)
+  el.addEventListener('pointerdown', e => {
     e.preventDefault();
-    e.stopPropagation();
     keys[code] = true;
-    console.log('Touch:', code, 'pressed');
-  }, { passive: false });
-  el.addEventListener('touchend', e => {
-    e.preventDefault();
-    e.stopPropagation();
-    keys[code] = false;
-    console.log('Touch:', code, 'released');
-  }, { passive: false });
-  el.addEventListener('touchcancel', e => {
-    keys[code] = false;
-    console.log('Touch:', code, 'cancelled');
+    el.style.background = 'rgba(255,255,255,0.3)';
+    el.setPointerCapture(e.pointerId);
+    console.log('Pointer:', code, 'down');
   });
-  // Mouse fallback for testing on desktop
-  el.addEventListener('mousedown', e => { e.preventDefault(); keys[code] = true; });
-  el.addEventListener('mouseup', e => { keys[code] = false; });
-  el.addEventListener('mouseleave', e => { keys[code] = false; });
+  
+  el.addEventListener('pointerup', e => {
+    e.preventDefault();
+    keys[code] = false;
+    el.style.background = '';
+    console.log('Pointer:', code, 'up');
+  });
+  
+  el.addEventListener('pointercancel', e => {
+    keys[code] = false;
+    el.style.background = '';
+    console.log('Pointer:', code, 'cancel');
+  });
+  
+  el.addEventListener('pointerleave', e => {
+    keys[code] = false;
+    el.style.background = '';
+  });
 }
 addTouch('btn-left', 'ArrowLeft');
 addTouch('btn-right', 'ArrowRight');
