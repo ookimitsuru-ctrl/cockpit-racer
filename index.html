@@ -203,13 +203,11 @@ function render(){
   ctx.clearRect(0,0,W,H);
   
   try{
-  // Sky - simple fill
   ctx.fillStyle='#000022';
   ctx.fillRect(0,0,W,H*0.5);
   }catch(e){throw new Error('SKY:'+e.message);}
   
   try{
-  // Stars
   ctx.fillStyle='#fff';
   for(var i=0;i<30;i++){
     ctx.fillRect((i*137.5+player.z*0.001)%W,(i*97.3)%(H*0.35),1.5,1.5);
@@ -217,7 +215,6 @@ function render(){
   }catch(e){throw new Error('STARS:'+e.message);}
   
   try{
-  // Mountains
   ctx.fillStyle='#0a1a3a';ctx.beginPath();ctx.moveTo(0,H*0.45);
   for(var i=0;i<=W;i+=3){
     var mh=Math.sin(i*0.003+player.z*0.00005)*40+Math.sin(i*0.007+1)*25;
@@ -227,19 +224,22 @@ function render(){
   }catch(e){throw new Error('MTN:'+e.message);}
   
   try{
-  // Base segment
+  // BASE
+  try{
   var bs=findSeg(player.z);
   if(!bs||!bs.p||!bs.p.world||!bs.p2||!bs.p2.world){
     ctx.fillStyle='#111';ctx.fillRect(0,H*0.5,W,H*0.5);
     drawDash();return;
   }
-  
   var bi=Math.floor(player.z/SEG_LEN)%segments.length;
   var bp=(player.z%SEG_LEN)/SEG_LEN;
   var pY=bs.p.world.y+(bs.p2.world.y-bs.p.world.y)*bp;
   var maxY=H,x=0,ddx=-(bs.curve*bp);
   var projected=[];
+  }catch(e){throw new Error('BASE:'+e.message);}
   
+  // LOOP
+  try{
   for(var n=0;n<DRAW_DIST;n++){
     var si=(bi+n)%segments.length;
     var seg=segments[si];
@@ -258,21 +258,23 @@ function render(){
     projected.push(seg);
     maxY=seg.p2.screen.y;
   }
+  }catch(e){throw new Error('LOOP:'+e.message);}
   
+  // DRAW
+  try{
   for(var i=projected.length-1;i>=0;i--){
     var s=projected[i];
     var p1=s.p.screen,p2=s.p2.screen;
-    if(typeof p1.y!=='number'&&typeof p1.screen.y!=='number')continue;
-    if(typeof p2.y!=='number'&&typeof p2.screen.y!=='number')continue;
     var dk=s.color==='dark';
     ctx.fillStyle=dk?'#0a3a0a':'#0b4a0b';
-    ctx.fillRect(0,p2.screen.y,W,p1.screen.y-p2.screen.y);
+    ctx.fillRect(0,p2.y,W,p1.y-p2.y);
     ctx.fillStyle=dk?'#cc0000':'#fff';
-    drawTrap(p1.screen.x,p1.screen.y,p1.screen.w*1.15,p2.screen.x,p2.screen.y,p2.screen.w*1.15);
+    drawTrap(p1.x,p1.y,p1.w*1.15,p2.x,p2.y,p2.w*1.15);
     ctx.fillStyle=dk?'#333':'#3a3a3a';
-    drawTrap(p1.screen.x,p1.screen.y,p1.screen.w,p2.screen.x,p2.screen.y,p2.screen.w);
-    if(!dk){ctx.fillStyle='#fff';drawTrap(p1.screen.x,p1.screen.y,p1.screen.w*0.01,p2.screen.x,p2.screen.y,p2.screen.w*0.01);}
+    drawTrap(p1.x,p1.y,p1.w,p2.x,p2.y,p2.w);
+    if(!dk){ctx.fillStyle='#fff';drawTrap(p1.x,p1.y,p1.w*0.01,p2.x,p2.y,p2.w*0.01);}
   }
+  }catch(e){throw new Error('DRAW:'+e.message);}
   }catch(e){throw new Error('ROAD:'+e.message);}
   
   try{drawDash();}catch(e){throw new Error('DASH:'+e.message);}
