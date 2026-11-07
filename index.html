@@ -22,8 +22,8 @@
   /* Touch controls */
   .touch-controls { display: none; position: absolute; bottom: 0; left: 0; width: 100%; height: 200px; z-index: 6; pointer-events: none; }
   .touch-controls.hidden { display: none !important; }
-  .touch-btn { position: absolute; pointer-events: all; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 28px; color: rgba(255,255,255,0.5); user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; }
-  .touch-btn:active { background: rgba(255,255,255,0.15) !important; }
+  .touch-btn { position: absolute; pointer-events: all; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 28px; color: rgba(255,255,255,0.5); user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; touch-action: manipulation; }
+  .touch-btn:active { background: rgba(255,255,255,0.25) !important; transform: scale(0.95); }
   #btn-left { left: 10px; bottom: 60px; width: 80px; height: 80px; background: rgba(255,68,0,0.2); border: 2px solid rgba(255,68,0,0.4); }
   #btn-right { left: 100px; bottom: 60px; width: 80px; height: 80px; background: rgba(255,68,0,0.2); border: 2px solid rgba(255,68,0,0.4); }
   #btn-gas { right: 10px; bottom: 80px; width: 90px; height: 90px; background: rgba(0,180,0,0.2); border: 2px solid rgba(0,180,0,0.4); }
@@ -269,10 +269,23 @@ window.addEventListener('keyup', e => { keys[e.code] = false; e.preventDefault()
 // --- Touch controls ---
 function addTouch(id, code) {
   const el = document.getElementById(id);
-  if (!el) return;
-  el.addEventListener('touchstart', e => { e.preventDefault(); keys[code] = true; }, { passive: false });
-  el.addEventListener('touchend', e => { e.preventDefault(); keys[code] = false; }, { passive: false });
-  el.addEventListener('touchcancel', e => { keys[code] = false; });
+  if (!el) { console.error('Touch button not found:', id); return; }
+  el.addEventListener('touchstart', e => {
+    e.preventDefault();
+    e.stopPropagation();
+    keys[code] = true;
+    console.log('Touch:', code, 'pressed');
+  }, { passive: false });
+  el.addEventListener('touchend', e => {
+    e.preventDefault();
+    e.stopPropagation();
+    keys[code] = false;
+    console.log('Touch:', code, 'released');
+  }, { passive: false });
+  el.addEventListener('touchcancel', e => {
+    keys[code] = false;
+    console.log('Touch:', code, 'cancelled');
+  });
   // Mouse fallback for testing on desktop
   el.addEventListener('mousedown', e => { e.preventDefault(); keys[code] = true; });
   el.addEventListener('mouseup', e => { keys[code] = false; });
