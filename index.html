@@ -2,602 +2,350 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
 <title>COCKPIT RACER</title>
 <style>
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-  html, body { background: #000; overflow: hidden; width: 100%; height: 100%; }
-  body { display: flex; justify-content: center; align-items: center; height: 100dvh; font-family: 'Courier New', monospace; }
-  canvas { display: block; width: 100vw; height: 100dvh; }
-  #start-screen { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; background: #000; z-index: 10; color: #fff; }
-  #start-screen h1 { font-size: 36px; color: #ff4400; text-shadow: 0 0 20px #ff4400; margin-bottom: 20px; letter-spacing: 4px; }
-  #start-screen .subtitle { font-size: 12px; color: #888; margin-bottom: 30px; }
-  #start-screen .start-btn { margin-top: 20px; padding: 12px 40px; font-size: 18px; background: #ff4400; color: #fff; border: none; cursor: pointer; font-family: 'Courier New', monospace; letter-spacing: 4px; touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
-  #start-screen .download-btn { margin-top: 10px; padding: 8px 20px; font-size: 12px; background: #333; color: #fff; border: 1px solid #555; cursor: pointer; font-family: 'Courier New', monospace; touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
-  #hud { position: absolute; top: 10px; left: 10px; color: #fff; font-size: 14px; z-index: 5; }
-  #hud div { margin-bottom: 4px; text-shadow: 1px 1px 2px #000; }
-  #speed-val { color: #ff4400; font-size: 20px; }
-  .touch-controls { display: none; position: absolute; bottom: 0; left: 0; width: 100%; height: 180px; z-index: 6; pointer-events: none; }
-  .touch-btn { position: absolute; pointer-events: all; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 28px; color: rgba(255,255,255,0.5); user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; touch-action: manipulation; }
-  .touch-btn:active { background: rgba(255,255,255,0.25) !important; }
-  #btn-left { left: 10px; bottom: 50px; width: 70px; height: 70px; background: rgba(255,68,0,0.2); border: 2px solid rgba(255,68,0,0.4); }
-  #btn-right { left: 90px; bottom: 50px; width: 70px; height: 70px; background: rgba(255,68,0,0.2); border: 2px solid rgba(255,68,0,0.4); }
-  #btn-gas { right: 10px; bottom: 60px; width: 80px; height: 80px; background: rgba(0,180,0,0.2); border: 2px solid rgba(0,180,0,0.4); }
-  #btn-brake { right: 100px; bottom: 60px; width: 70px; height: 70px; background: rgba(180,0,0,0.2); border: 2px solid rgba(180,0,0,0.4); }
-  @media (max-width: 768px), (pointer: coarse) {
-    .touch-controls { display: block; }
-    #start-screen .controls { display: none; }
-  }
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{background:#000;width:100%;height:100%;overflow:hidden}
+body{display:flex;justify-content:center;align-items:center;height:100dvh;font-family:monospace}
+canvas{display:block;width:100%;height:100%}
+#start-screen{position:absolute;top:0;left:0;width:100%;height:100%;display:flex;flex-direction:column;justify-content:center;align-items:center;background:#000;z-index:10;color:#fff}
+#start-screen h1{font-size:32px;color:#ff4400;margin-bottom:20px}
+#startBtn{padding:12px 40px;font-size:18px;background:#ff4400;color:#fff;border:none;cursor:pointer;font-family:monospace}
+#downloadBtn{margin-top:10px;padding:8px 20px;font-size:12px;background:#333;color:#fff;border:1px solid #555;cursor:pointer;font-family:monospace}
+#hud{position:absolute;top:10px;left:10px;color:#fff;font-size:14px;z-index:5}
+#speed-val{color:#ff4400;font-size:20px}
+.touch-controls{display:none;position:absolute;bottom:0;left:0;width:100%;height:160px;z-index:6}
+.touch-btn{position:absolute;width:70px;height:70px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:24px;color:rgba(255,255,255,0.6);user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
+#btn-left{left:10px;bottom:40px;background:rgba(255,68,0,0.3);border:2px solid rgba(255,68,0,0.5)}
+#btn-right{left:90px;bottom:40px;background:rgba(255,68,0,0.3);border:2px solid rgba(255,68,0,0.5)}
+#btn-gas{right:10px;bottom:50px;width:80px;height:80px;background:rgba(0,180,0,0.3);border:2px solid rgba(0,180,0,0.5)}
+#btn-brake{right:100px;bottom:50px;background:rgba(180,0,0,0.3);border:2px solid rgba(180,0,0,0.5)}
+@media(max-width:768px),(pointer:coarse){.touch-controls{display:block}}
 </style>
 </head>
 <body>
-
 <div id="start-screen">
-  <h1>COCKPIT RACER</h1>
-  <div class="subtitle">COCKPIT VIEW RACING SIMULATOR</div>
-  <button class="start-btn" id="startBtn">START</button>
-  <button class="download-btn" id="downloadBtn">DOWNLOAD (スマホ用)</button>
+<h1>COCKPIT RACER</h1>
+<button id="startBtn">START</button>
+<button id="downloadBtn">DOWNLOAD</button>
 </div>
-
 <canvas id="game"></canvas>
-
-<div class="touch-controls" id="touch-controls">
-  <div class="touch-btn" id="btn-left">◀</div>
-  <div class="touch-btn" id="btn-right">▶</div>
-  <div class="touch-btn" id="btn-brake">🛑</div>
-  <div class="touch-btn" id="btn-gas">🏎️</div>
+<div class="touch-controls">
+<div class="touch-btn" id="btn-left">◀</div>
+<div class="touch-btn" id="btn-right">▶</div>
+<div class="touch-btn" id="btn-brake">🛑</div>
+<div class="touch-btn" id="btn-gas">🏎️</div>
 </div>
-
-<div id="hud">
-  <div id="speed-val">0 km/h</div>
-  <div id="dist-val">DIST: 0.0 km</div>
-  <div id="time-val">TIME: 0:00</div>
-</div>
-
+<div id="hud"><div id="speed-val">0 km/h</div><div id="dist-val">DIST: 0.0 km</div><div id="time-val">TIME: 0:00</div></div>
 <script>
-(function() {
-  // --- Constants ---
-  const SEGMENT_LENGTH = 200;
-  const ROAD_WIDTH = 2000;
-  const TOTAL_SEGMENTS = 1600;
-  const DRAW_DISTANCE = 150;
-  const CAMERA_HEIGHT = 1000;
-  const CAMERA_DEPTH = 0.84;
+(function(){
+'use strict';
 
-  // --- Canvas ---
-  const canvas = document.getElementById('game');
-  let ctx = null;
-  if (canvas) {
-    ctx = canvas.getContext('2d');
-  }
-  let W = 0, H = 0;
+// === DOM refs ===
+var canvas=document.getElementById('game');
+var ctx=canvas&&canvas.getContext('2d');
+var W=window.innerWidth||320;
+var H=window.innerHeight||480;
 
-  function resize() {
-    if (!canvas) return;
-    W = canvas.width = window.innerWidth || 320;
-    H = canvas.height = window.innerHeight || 480;
-  }
-  resize();
-  window.addEventListener('resize', resize);
+// === Constants ===
+var SEG_LEN=200;
+var ROAD_W=2000;
+var DRAW_DIST=150;
+var CAM_H=1000;
+var CAM_D=0.84;
 
-  // --- Track ---
-  let segments = [];
-  let trackLength = 0;
+// === State ===
+var segments=[];
+var trackLength=0;
+var player={x:0,z:0,speed:0,maxSpeed:SEG_LEN*60,accel:SEG_LEN*12,decel:SEG_LEN*8,brake:SEG_LEN*20,steer:0,lap:0,lapTime:0,totalTime:0,dist:0};
+var keys={};
+var gameRunning=false;
+var lastTime=0;
+var rafId=null;
 
-  function buildTrack() {
-    segments = [];
-    
-    function addRoad(enter, hold, leave, curve, hill) {
-      const total = enter + hold + leave;
-      for (let i = 0; i < total; i++) {
-        let c = 0, h = hill || 0;
-        if (i < enter) c = curve * (i / enter);
-        else if (i < enter + hold) c = curve;
-        else c = curve * (1 - (i - enter - hold) / leave);
-        
-        segments.push({
-          index: segments.length,
-          p: { world: { x: 0, y: 0, z: 0 }, screen: {}, scale: 0, camera: {} },
-          p2: { world: { x: 0, y: 0, z: 0 }, screen: {}, scale: 0, camera: {} },
-          curve: c,
-          hill: h,
-          sprites: [],
-          cars: [],
-          color: Math.floor(segments.length / 3) % 2 ? 'dark' : 'light',
-        });
-      }
-    }
-    
-    // Build track
-    addRoad(10, 50, 10, 0, 0);
-    addRoad(15, 30, 15, 2, 0);
-    addRoad(10, 20, 10, 0, 5);
-    addRoad(15, 40, 15, -3, 0);
-    addRoad(10, 30, 10, 0, -3);
-    addRoad(20, 60, 20, 1.5, 2);
-    addRoad(10, 20, 10, -2, 0);
-    addRoad(15, 40, 15, 0, -5);
-    addRoad(10, 30, 10, 3, 3);
-    addRoad(15, 50, 15, -1.5, 0);
-    addRoad(10, 20, 10, 0, 4);
-    addRoad(20, 60, 20, -2.5, -2);
-    addRoad(10, 40, 10, 0, 0);
-    addRoad(15, 30, 15, 2, 3);
-    addRoad(10, 20, 10, -3, 0);
-    addRoad(10, 30, 10, 0, -4);
-    addRoad(20, 50, 20, 1, 0);
-    addRoad(15, 40, 15, -2, 2);
-    addRoad(10, 30, 10, 0, 0);
-    
-    // Fill remaining
-    while (segments.length < TOTAL_SEGMENTS) {
-      const r = Math.random();
-      if (r < 0.3) addRoad(10, 30 + Math.random()*40, 10, (Math.random()-0.5)*6, (Math.random()-0.5)*8);
-      else addRoad(10, 20 + Math.random()*30, 10, 0, (Math.random()-0.5)*6);
-    }
-    
-    // Calculate world coordinates
-    let currentY = 0;
-    let currentX = 0;
-    for (let i = 0; i < segments.length; i++) {
-      segments[i].p.world.z = i * SEGMENT_LENGTH;
-      segments[i].p.world.y = currentY;
-      segments[i].p.world.x = currentX;
-      currentY += segments[i].hill;
-      currentX += segments[i].curve * 0.3;
-    }
-    
-    for (let i = 0; i < segments.length - 1; i++) {
-      segments[i].p2.world.x = segments[i+1].p.world.x;
-      segments[i].p2.world.y = segments[i+1].p.world.y;
-      segments[i].p2.world.z = segments[i+1].p.world.z;
-    }
-    const last = segments[segments.length - 1];
-    last.p2.world.x = last.p.world.x;
-    last.p2.world.y = last.p.world.y;
-    last.p2.world.z = last.p.world.z + SEGMENT_LENGTH;
-    
-    trackLength = segments.length * SEGMENT_LENGTH;
-  }
-
-  // --- Player ---
-  let player = {
-    x: 0,
-    z: 0,
-    speed: 0,
-    maxSpeed: SEGMENT_LENGTH * 60,
-    accel: SEGMENT_LENGTH * 12,
-    decel: SEGMENT_LENGTH * 8,
-    brake: SEGMENT_LENGTH * 20,
-    offRoadDecel: SEGMENT_LENGTH * 15,
-    steerAngle: 0,
-    lap: 0,
-    lapTime: 0,
-    totalTime: 0,
-    distance: 0,
-    bestLap: Infinity,
-  };
-
-  // --- Input ---
-  const keys = {};
-  window.addEventListener('keydown', e => {
-    keys[e.code] = true;
-    if (e.code === 'KeyR') resetGame();
-    e.preventDefault();
-  });
-  window.addEventListener('keyup', e => { keys[e.code] = false; e.preventDefault(); });
-
-  // --- Touch controls ---
-  function addTouch(id, code) {
-    const el = document.getElementById(id);
-    if (!el) return;
-    
-    el.addEventListener('pointerdown', e => {
-      e.preventDefault();
-      keys[code] = true;
-      el.style.background = 'rgba(255,255,255,0.3)';
-    });
-    
-    el.addEventListener('pointerup', e => {
-      e.preventDefault();
-      keys[code] = false;
-      el.style.background = '';
-    });
-    
-    el.addEventListener('pointercancel', e => {
-      keys[code] = false;
-      el.style.background = '';
-    });
-    
-    el.addEventListener('pointerleave', e => {
-      keys[code] = false;
-      el.style.background = '';
-    });
-  }
-
-  addTouch('btn-left', 'ArrowLeft');
-  addTouch('btn-right', 'ArrowRight');
-  addTouch('btn-gas', 'ArrowUp');
-  addTouch('btn-brake', 'ArrowDown');
-
-  // --- Project ---
-  function project(p, cameraX, cameraY, cameraZ, cameraDepth, width, height, roadWidth) {
-    if (!p || !p.world) return;
-    p.camera = p.camera || {};
-    p.camera.x = p.world.x - cameraX;
-    p.camera.y = p.world.y - cameraY;
-    p.camera.z = p.world.z - cameraZ;
-    if (p.camera.z <= 0) p.camera.z = 0.1;
-    p.screen.scale = cameraDepth / p.camera.z * width / 2;
-    p.screen.x = Math.round(width / 2 + p.screen.scale * p.camera.x);
-    p.screen.y = Math.round(height / 2 - p.screen.scale * p.camera.y);
-    p.screen.w = Math.round(p.screen.scale * roadWidth);
-  }
-
-  // --- Find segment ---
-  function findSegment(z) {
-    if (!segments || segments.length === 0) return null;
-    const idx = Math.floor(z / SEGMENT_LENGTH) % segments.length;
-    return segments[idx < 0 ? idx + segments.length : idx];
-  }
-
-  // --- Update ---
-  function update(dt) {
-    if (!gameRunning) return;
-    
-    const playerSegment = findSegment(player.z);
-    if (!playerSegment) return;
-    
-    const speedPercent = player.speed / player.maxSpeed;
-    const dx = dt * 2 * speedPercent;
-    
-    // Steering
-    if (keys['ArrowLeft']) {
-      player.steerAngle = Math.max(player.steerAngle - dt * 5, -1);
-    } else if (keys['ArrowRight']) {
-      player.steerAngle = Math.min(player.steerAngle + dt * 5, 1);
-    } else {
-      player.steerAngle *= 0.9;
-    }
-    
-    // Centrifugal force
-    player.x -= dx * playerSegment.curve * speedPercent * 0.8;
-    
-    // Apply steering
-    player.x += player.steerAngle * dx * 2.5;
-    
-    // Acceleration / braking
-    if (keys['ArrowUp']) {
-      const accelFactor = Math.sin((player.speed / player.maxSpeed) * Math.PI * 0.8) * 0.8 + 0.2;
-      player.speed += player.accel * accelFactor * dt;
-    } else if (keys['ArrowDown'] || keys['Space']) {
-      player.speed -= keys['Space'] ? player.brake * 1.5 * dt : player.brake * dt;
-    } else {
-      player.speed -= player.decel * 0.3 * dt;
-    }
-    
-    // Off-road slowdown
-    if (Math.abs(player.x) > ROAD_WIDTH * 0.8) {
-      player.speed -= player.offRoadDecel * dt;
-      if (player.x > ROAD_WIDTH) player.x -= dt * 200;
-      if (player.x < -ROAD_WIDTH) player.x += dt * 200;
-    }
-    
-    // Clamp
-    player.speed = Math.max(0, Math.min(player.speed, player.maxSpeed));
-    player.x = Math.max(-ROAD_WIDTH * 1.5, Math.min(ROAD_WIDTH * 1.5, player.x));
-    
-    // Move forward
-    player.z += player.speed * dt;
-    if (player.z >= trackLength) {
-      player.z -= trackLength;
-      player.lap++;
-      if (player.lapTime < player.bestLap) player.bestLap = player.lapTime;
-      player.lapTime = 0;
-    }
-    
-    player.lapTime += dt;
-    player.totalTime += dt;
-    player.distance += player.speed * dt / 100000;
-  }
-
-  // --- Render ---
-  function render() {
-    if (!ctx) return;
-    try {
-      ctx.clearRect(0, 0, W, H);
-      
-      // Sky
-      const skyGrad = ctx.createLinearGradient(0, 0, 0, H * 0.5);
-      skyGrad.addColorStop(0, '#000022');
-      skyGrad.addColorStop(1, '#1a2a5a');
-      ctx.fillStyle = skyGrad;
-      ctx.fillRect(0, 0, W, H * 0.5);
-      
-      // Stars
-      ctx.fillStyle = '#fff';
-      for (let i = 0; i < 50; i++) {
-        const sx = (i * 137.5 + player.z * 0.001) % W;
-        const sy = (i * 97.3) % (H * 0.35);
-        const ss = (Math.sin(player.totalTime * 2 + i) + 1) * 1.5;
-        ctx.fillRect(sx, sy, ss, ss);
-      }
-      
-      // Mountains
-      ctx.fillStyle = '#0a1a3a';
-      ctx.beginPath();
-      ctx.moveTo(0, H * 0.45);
-      for (let i = 0; i <= W; i += 3) {
-        const h = Math.sin(i * 0.003 + player.z * 0.00005) * 40 +
-                  Math.sin(i * 0.007 + 1) * 25 +
-                  Math.sin(i * 0.001) * 60;
-        ctx.lineTo(i, H * 0.42 - h);
-      }
-      ctx.lineTo(W, H * 0.5);
-      ctx.lineTo(0, H * 0.5);
-      ctx.fill();
-      
-      const baseSegment = findSegment(player.z);
-      if (!baseSegment || !baseSegment.p || !baseSegment.p.world || !baseSegment.p2) {
-        // Draw a simple fallback
-        ctx.fillStyle = '#1a1a1a';
-        ctx.fillRect(0, H * 0.5, W, H * 0.5);
-        drawDashboard();
-        return;
-      }
-      
-      const baseIndex = Math.floor(player.z / SEGMENT_LENGTH) % segments.length;
-      const basePercent = (player.z % SEGMENT_LENGTH) / SEGMENT_LENGTH;
-      const playerY = baseSegment.p.world.y + (baseSegment.p2.world.y - baseSegment.p.world.y) * basePercent;
-      
-      let maxY = H;
-      let x = 0;
-      let dx = -(baseSegment.curve * basePercent);
-      
-      // Project segments
-      const projected = [];
-      for (let n = 0; n < DRAW_DISTANCE; n++) {
-        const i = (baseIndex + n) % segments.length;
-        const seg = segments[i];
-        if (!seg || !seg.p || !seg.p2) continue;
-        
-        const looped = (baseIndex + n) >= segments.length;
-        const camZ = player.z - (looped ? trackLength : 0);
-        
-        project(seg.p, player.x * ROAD_WIDTH / 2 - x, playerY + CAMERA_HEIGHT, camZ, CAMERA_DEPTH, W, H, ROAD_WIDTH);
-        project(seg.p2, player.x * ROAD_WIDTH / 2 - x - dx, playerY + CAMERA_HEIGHT, camZ, CAMERA_DEPTH, W, H, ROAD_WIDTH);
-        
-        x += dx;
-        dx += seg.curve;
-        
-        if (!seg.p.camera || !seg.p2.screen) continue;
-        if (seg.p.camera.z <= CAMERA_DEPTH || seg.p2.screen.y >= maxY) continue;
-        
-        projected.push({ seg, n });
-        maxY = seg.p2.screen.y;
-      }
-      
-      // Draw
-      for (let i = projected.length - 1; i >= 0; i--) {
-        const { seg } = projected[i];
-        const p1 = seg.p.screen;
-        const p2 = seg.p2.screen;
-        const isDark = seg.color === 'dark';
-        
-        // Ground
-        ctx.fillStyle = isDark ? '#0a3a0a' : '#0b4a0b';
-        ctx.fillRect(0, p2.screen.y, W, p1.screen.y - p2.screen.y);
-        
-        // Rumble strips
-        ctx.fillStyle = isDark ? '#cc0000' : '#ffffff';
-        drawTrapezoid(p1.screen.x, p1.screen.y, p1.screen.w * 1.15, p2.screen.x, p2.screen.y, p2.screen.w * 1.15);
-        
-        // Road
-        ctx.fillStyle = isDark ? '#333333' : '#3a3a3a';
-        drawTrapezoid(p1.screen.x, p1.screen.y, p1.screen.w, p2.screen.x, p2.screen.y, p2.screen.w);
-        
-        // Lane
-        if (!isDark) {
-          ctx.fillStyle = '#ffffff';
-          drawTrapezoid(p1.screen.x, p1.screen.y, p1.screen.w * 0.01, p2.screen.x, p2.screen.y, p2.screen.w * 0.01);
-        }
-      }
-      
-      // Dashboard
-      drawDashboard();
-    } catch (e) {
-      console.error('Render error:', e);
-      // Draw fallback
-      ctx.fillStyle = '#1a1a1a';
-      ctx.fillRect(0, 0, W, H);
-      ctx.fillStyle = '#ff4400';
-      ctx.font = '20px Courier New';
-      ctx.fillText('ERROR: ' + e.message, 10, 30);
+// === Build track ===
+function buildTrack(){
+  segments=[];
+  function addR(en,ho,lv,cv,hl){
+    var t=en+ho+lv;
+    for(var i=0;i<t;i++){
+      var c=0,h=hl||0;
+      if(i<en)c=cv*(i/en);
+      else if(i<en+ho)c=cv;
+      else c=cv*(1-(i-en-ho)/lv);
+      var si=segments.length;
+      segments.push({
+        index:si,
+        p:{world:{x:0,y:0,z:0},screen:{},scale:0,camera:{}},
+        p2:{world:{x:0,y:0,z:0},screen:{},scale:0,camera:{}},
+        curve:c,hill:h,color:Math.floor(si/3)%2?'dark':'light'
+      });
     }
   }
-
-  function drawTrapezoid(x1, y1, w1, x2, y2, w2) {
-    ctx.beginPath();
-    ctx.moveTo(x1 - w1, y1);
-    ctx.lineTo(x1 + w1, y1);
-    ctx.lineTo(x2 + w2, y2);
-    ctx.lineTo(x2 - w2, y2);
-    ctx.closePath();
-    ctx.fill();
+  addR(10,50,10,0,0);addR(15,30,15,2,0);addR(10,20,10,0,5);
+  addR(15,40,15,-3,0);addR(10,30,10,0,-3);addR(20,60,20,1.5,2);
+  addR(10,20,10,-2,0);addR(15,40,15,0,-5);addR(10,30,10,3,3);
+  addR(15,50,15,-1.5,0);addR(10,20,10,0,4);addR(20,60,20,-2.5,-2);
+  addR(10,40,10,0,0);addR(15,30,15,2,3);addR(10,20,10,-3,0);
+  addR(10,30,10,0,-4);addR(20,50,20,1,0);addR(15,40,15,-2,2);
+  addR(10,30,10,0,0);
+  while(segments.length<1600){
+    var r=Math.random();
+    if(r<0.3)addR(10,30+Math.random()*40,10,(Math.random()-0.5)*6,(Math.random()-0.5)*8);
+    else addR(10,20+Math.random()*30,10,0,(Math.random()-0.5)*6);
   }
-
-  function drawDashboard() {
-    if (!ctx || W <= 0 || H <= 0) return;
-    try {
-      const isMobile = W < 768;
-      const dashY = isMobile ? H * 0.75 : H * 0.8;
-      const dashH = H - dashY;
-      
-      // Dashboard background
-      ctx.fillStyle = '#1a1a1a';
-      ctx.fillRect(0, dashY, W, dashH);
-      
-      // Steering wheel
-      const steerW = isMobile ? W * 0.5 : W * 0.35;
-      const steerH = dashH * 0.6;
-      const steerCx = W / 2;
-      const steerCy = dashY + dashH * 0.4;
-      
-      ctx.strokeStyle = '#333';
-      ctx.lineWidth = isMobile ? 8 : 12;
-      ctx.beginPath();
-      ctx.ellipse(steerCx, steerCy, steerW, steerH, 0, 0, Math.PI * 2);
-      ctx.stroke();
-      
-      // Steering wheel spokes
-      ctx.strokeStyle = '#2a2a2a';
-      ctx.lineWidth = isMobile ? 6 : 8;
-      for (let i = 0; i < 3; i++) {
-        const angle = (i / 3) * Math.PI * 2 + Math.PI / 2;
-        ctx.beginPath();
-        ctx.moveTo(steerCx, steerCy);
-        ctx.lineTo(steerCx + Math.cos(angle) * steerW * 0.8, steerCy + Math.sin(angle) * steerH * 0.8);
-        ctx.stroke();
-      }
-      
-      // Speedometer
-      const speedoX = isMobile ? W * 0.75 : W * 0.85;
-      const speedoY = dashY + dashH * 0.5;
-      const speedoR = isMobile ? Math.min(W, H) * 0.1 : Math.min(W, H) * 0.12;
-      
-      ctx.fillStyle = '#0a0a0a';
-      ctx.beginPath();
-      ctx.arc(speedoX, speedoY, speedoR, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.strokeStyle = '#333';
-      ctx.lineWidth = 3;
-      ctx.stroke();
-      
-      // Speed needle
-      const kmh = Math.round(player.speed / player.maxSpeed * 280);
-      const needleAngle = -Math.PI * 0.75 + (kmh / 280) * Math.PI * 1.5;
-      ctx.strokeStyle = '#ff4400';
-      ctx.lineWidth = 3;
-      ctx.beginPath();
-      ctx.moveTo(speedoX, speedoY);
-      ctx.lineTo(speedoX + Math.cos(needleAngle) * speedoR * 0.7, speedoY + Math.sin(needleAngle) * speedoR * 0.7);
-      ctx.stroke();
-      
-      // Speed text
-      ctx.fillStyle = '#ff4400';
-      ctx.font = `bold ${isMobile ? 20 : 24}px 'Courier New'`;
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-      ctx.fillText(kmh, speedoX, speedoY);
-      ctx.fillStyle = '#666';
-      ctx.font = `${isMobile ? 10 : 12}px 'Courier New'`;
-      ctx.fillText('km/h', speedoX, speedoY + speedoR * 0.4);
-      
-      // Update HUD
-      const sv = document.getElementById('speed-val');
-      const dv = document.getElementById('dist-val');
-      const tv = document.getElementById('time-val');
-      if (sv) sv.textContent = kmh + ' km/h';
-      if (dv) dv.textContent = 'DIST: ' + player.distance.toFixed(1) + ' km';
-      if (tv) tv.textContent = 'TIME: ' + formatTime(player.totalTime);
-    } catch(e) {
-      console.error('Dashboard error:', e);
-    }
+  var cy=0,cx=0;
+  for(var i=0;i<segments.length;i++){
+    segments[i].p.world.z=i*SEG_LEN;
+    segments[i].p.world.y=cy;
+    segments[i].p.world.x=cx;
+    cy+=segments[i].hill;
+    cx+=segments[i].curve*0.3;
   }
-
-  function formatTime(t) {
-    const mins = Math.floor(t / 60);
-    const secs = Math.floor(t % 60);
-    return mins + ':' + (secs < 10 ? '0' : '') + secs;
+  for(var i=0;i<segments.length-1;i++){
+    segments[i].p2.world.x=segments[i+1].p.world.x;
+    segments[i].p2.world.y=segments[i+1].p.world.y;
+    segments[i].p2.world.z=segments[i+1].p.world.z;
   }
+  var la=segments[segments.length-1];
+  la.p2.world.x=la.p.world.x;la.p2.world.y=la.p.world.y;la.p2.world.z=la.p.world.z+SEG_LEN;
+  trackLength=segments.length*SEG_LEN;
+}
 
-  // --- Reset ---
-  function resetGame() {
-    buildTrack();
-    player.x = 0;
-    player.z = 0;
-    player.speed = 0;
-    player.steerAngle = 0;
-    player.lap = 0;
-    player.lapTime = 0;
-    player.totalTime = 0;
-    player.distance = 0;
-    player.bestLap = Infinity;
+// === Find segment ===
+function findSeg(z){
+  if(!segments||segments.length===0)return null;
+  var idx=Math.floor(z/SEG_LEN)%segments.length;
+  if(idx<0)idx+=segments.length;
+  return segments[idx];
+}
+
+// === Project ===
+function proj(p,cx,cy,cz,cd,w,h,rw){
+  if(!p||!p.world)return;
+  p.camera=p.camera||{};
+  p.camera.x=p.world.x-cx;
+  p.camera.y=p.world.y-cy;
+  p.camera.z=p.world.z-cz;
+  if(p.camera.z<=0.1)p.camera.z=0.1;
+  p.screen.scale=cd/p.camera.z*w/2;
+  p.screen.x=Math.round(w/2+p.screen.scale*p.camera.x);
+  p.screen.y=Math.round(h/2-p.screen.scale*p.camera.y);
+  p.screen.w=Math.round(p.screen.scale*rw);
+}
+
+// === Draw trapezoid ===
+function drawTrap(x1,y1,w1,x2,y2,w2){
+  ctx.beginPath();
+  ctx.moveTo(x1-w1,y1);ctx.lineTo(x1+w1,y1);
+  ctx.lineTo(x2+w2,y2);ctx.lineTo(x2-w2,y2);
+  ctx.closePath();ctx.fill();
+}
+
+// === Update ===
+function update(dt){
+  if(!gameRunning)return;
+  var ps=findSeg(player.z);
+  if(!ps)return;
+  var sp=player.speed/player.maxSpeed;
+  var dx=dt*2*sp;
+  if(keys.ArrowLeft)player.steer=Math.max(player.steer-dt*5,-1);
+  else if(keys.ArrowRight)player.steer=Math.min(player.steer+dt*5,1);
+  else player.steer*=0.9;
+  player.x-=dx*ps.curve*sp*0.8;
+  player.x+=player.steer*dx*2.5;
+  if(keys.ArrowUp){
+    var af=Math.sin(sp*Math.PI*0.8)*0.8+0.2;
+    player.speed+=player.accel*af*dt;
+  }else if(keys.ArrowDown||keys.Space){
+    player.speed-=keys.Space?player.brake*1.5*dt:player.brake*dt;
+  }else{
+    player.speed-=player.decel*0.3*dt;
   }
-
-  // --- Game loop ---
-  let gameRunning = false;
-  let lastTime = 0;
-  let rafId = null;
-
-  function gameLoop(timestamp) {
-    if (!lastTime) lastTime = timestamp;
-    const dt = Math.min((timestamp - lastTime) / 1000, 0.05);
-    lastTime = timestamp;
-    
-    if (gameRunning) {
-      if (!segments || segments.length === 0) {
-        buildTrack();
-      }
-      if (!ctx) {
-        // Fallback: draw plain background
-        try {
-          const dummyCanvas = document.createElement('canvas');
-          const dummyCtx = dummyCanvas.getContext('2d');
-          if (dummyCtx) {
-            dummyCtx.fillStyle = '#000';
-            dummyCtx.fillRect(0, 0, W || 320, H || 480);
-          }
-        } catch(e) {}
-      } else {
-        update(dt);
-        render();
-      }
-    }
-    
-    if (typeof requestAnimationFrame === 'function') {
-      rafId = requestAnimationFrame(gameLoop);
-    }
+  if(Math.abs(player.x)>ROAD_W*0.8){
+    player.speed-=player.brake*dt;
+    if(player.x>ROAD_W)player.x-=dt*200;
+    if(player.x<-ROAD_W)player.x+=dt*200;
   }
+  player.speed=Math.max(0,Math.min(player.speed,player.maxSpeed));
+  player.x=Math.max(-ROAD_W*1.5,Math.min(ROAD_W*1.5,player.x));
+  player.z+=player.speed*dt;
+  if(player.z>=trackLength){player.z-=trackLength;player.lap++;player.lapTime=0;}
+  player.lapTime+=dt;player.totalTime+=dt;
+  player.dist+=player.speed*dt/100000;
+}
 
-  // --- Start ---
-  const startBtn = document.getElementById('startBtn');
-  function startGame() {
-    try {
-      if (!segments || segments.length === 0) {
-        buildTrack();
-      }
-      document.getElementById('start-screen').style.display = 'none';
-      resetGame();
-      gameRunning = true;
-      lastTime = 0;
-      requestAnimationFrame(gameLoop);
-    } catch (e) {
-      alert('エラー: ' + e.message);
-    }
+// === Render ===
+function render(){
+  if(!ctx)return;
+  ctx.clearRect(0,0,W,H);
+  
+  // Sky
+  var sg=ctx.createLinearGradient(0,0,0,H*0.5);
+  sg.addColorStop(0,'#000022');sg.addColorStop(1,'#1a2a5a');
+  ctx.fillStyle=sg;ctx.fillRect(0,0,W,H*0.5);
+  
+  // Stars
+  ctx.fillStyle='#fff';
+  for(var i=0;i<30;i++){
+    ctx.fillRect((i*137.5+player.z*0.001)%W,(i*97.3)%(H*0.35),1.5,1.5);
   }
-  startBtn.addEventListener('click', startGame);
-  startBtn.addEventListener('touchend', (e) => { e.preventDefault(); startGame(); });
-  startBtn.addEventListener('touchstart', (e) => { e.preventDefault(); });
+  
+  // Mountains
+  ctx.fillStyle='#0a1a3a';ctx.beginPath();ctx.moveTo(0,H*0.45);
+  for(var i=0;i<=W;i+=3){
+    var mh=Math.sin(i*0.003+player.z*0.00005)*40+Math.sin(i*0.007+1)*25;
+    ctx.lineTo(i,H*0.42-mh);
+  }
+  ctx.lineTo(W,H*0.5);ctx.lineTo(0,H*0.5);ctx.fill();
+  
+  // Base segment
+  var bs=findSeg(player.z);
+  if(!bs||!bs.p||!bs.p.world||!bs.p2){
+    ctx.fillStyle='#111';ctx.fillRect(0,H*0.5,W,H*0.5);
+    drawDash();return;
+  }
+  
+  var bi=Math.floor(player.z/SEG_LEN)%segments.length;
+  var bp=(player.z%SEG_LEN)/SEG_LEN;
+  var pY=bs.p.world.y+(bs.p2.world.y-bs.p.world.y)*bp;
+  var maxY=H,x=0,ddx=-(bs.curve*bp);
+  var projected=[];
+  
+  for(var n=0;n<DRAW_DIST;n++){
+    var si=(bi+n)%segments.length;
+    var seg=segments[si];
+    if(!seg||!seg.p||!seg.p2)continue;
+    var looped=(bi+n)>=segments.length;
+    var cz=player.z-(looped?trackLength:0);
+    proj(seg.p,player.x*ROAD_W/2-x,pY+CAM_H,cz,CAM_D,W,H,ROAD_W);
+    proj(seg.p2,player.x*ROAD_W/2-x-ddx,pY+CAM_H,cz,CAM_D,W,H,ROAD_W);
+    x+=ddx;ddx+=seg.curve;
+    if(!seg.p.camera||!seg.p2.screen)continue;
+    if(seg.p.camera.z<=CAM_D||seg.p2.screen.y>=maxY)continue;
+    projected.push(seg);
+    maxY=seg.p2.screen.y;
+  }
+  
+  for(var i=projected.length-1;i>=0;i--){
+    var s=projected[i];
+    var p1=s.p.screen,p2=s.p2.screen;
+    var dk=s.color==='dark';
+    ctx.fillStyle=dk?'#0a3a0a':'#0b4a0b';
+    ctx.fillRect(0,p2.screen.y,W,p1.screen.y-p2.screen.y);
+    ctx.fillStyle=dk?'#cc0000':'#fff';
+    drawTrap(p1.screen.x,p1.screen.y,p1.screen.w*1.15,p2.screen.x,p2.screen.y,p2.screen.w*1.15);
+    ctx.fillStyle=dk?'#333':'#3a3a3a';
+    drawTrap(p1.screen.x,p1.screen.y,p1.screen.w,p2.screen.x,p2.screen.y,p2.screen.w);
+    if(!dk){ctx.fillStyle='#fff';drawTrap(p1.screen.x,p1.screen.y,p1.screen.w*0.01,p2.screen.x,p2.screen.y,p2.screen.w*0.01);}
+  }
+  drawDash();
+}
 
-  // --- Download ---
-  document.getElementById('downloadBtn').addEventListener('click', () => {
-    const a = document.createElement('a');
-    a.href = 'index.html';
-    a.download = 'cockpit-racer.html';
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-  });
+// === Dashboard ===
+function drawDash(){
+  if(!ctx||W<=0||H<=0)return;
+  var mob=W<768;
+  var dY=mob?H*0.75:H*0.8;
+  var dH=H-dY;
+  ctx.fillStyle='#1a1a1a';ctx.fillRect(0,dY,W,dH);
+  var sw=mob?W*0.5:W*0.35;
+  var sh=dH*0.6;
+  var scx=W/2,scy=dY+dH*0.4;
+  ctx.strokeStyle='#333';ctx.lineWidth=mob?8:12;
+  ctx.beginPath();ctx.ellipse(scx,scy,sw,sh,0,0,Math.PI*2);ctx.stroke();
+  ctx.strokeStyle='#2a2a2a';ctx.lineWidth=mob?6:8;
+  for(var i=0;i<3;i++){
+    var a=(i/3)*Math.PI*2+Math.PI/2;
+    ctx.beginPath();ctx.moveTo(scx,scy);
+    ctx.lineTo(scx+Math.cos(a)*sw*0.8,scy+Math.sin(a)*sh*0.8);ctx.stroke();
+  }
+  var spx=mob?W*0.75:W*0.85;
+  var spy=dY+dH*0.5;
+  var spr=mob?Math.min(W,H)*0.1:Math.min(W,H)*0.12;
+  ctx.fillStyle='#0a0a0a';ctx.beginPath();ctx.arc(spx,spy,spr,0,Math.PI*2);ctx.fill();
+  ctx.strokeStyle='#333';ctx.lineWidth=3;ctx.stroke();
+  var kmh=Math.round(player.speed/player.maxSpeed*280);
+  var na=-Math.PI*0.75+(kmh/280)*Math.PI*1.5;
+  ctx.strokeStyle='#ff4400';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(spx,spy);
+  ctx.lineTo(spx+Math.cos(na)*spr*0.7,spy+Math.sin(na)*spr*0.7);ctx.stroke();
+  ctx.fillStyle='#ff4400';ctx.font='bold'+(mob?20:24)+'px monospace';
+  ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(kmh,spx,spy);
+  ctx.fillStyle='#666';ctx.font=(mob?10:12)+'px monospace';ctx.fillText('km/h',spx,spy+spr*0.4);
+  var sv=document.getElementById('speed-val');
+  var dv=document.getElementById('dist-val');
+  var tv=document.getElementById('time-val');
+  if(sv)sv.textContent=kmh+' km/h';
+  if(dv)dv.textContent='DIST: '+player.dist.toFixed(1)+' km';
+  if(tv){var m=Math.floor(player.totalTime/60);var s=Math.floor(player.totalTime%60);tv.textContent='TIME: '+m+':'+(s<10?'0':'')+s;}
+}
 
-  // --- Error handling ---
-  window.addEventListener('error', (e) => {
-    alert('エラー: ' + (e.error ? e.error.message : 'unknown'));
-  });
-
-  // --- Initial setup ---
+// === Reset ===
+function resetGame(){
   buildTrack();
+  player.x=0;player.z=0;player.speed=0;player.steer=0;
+  player.lap=0;player.lapTime=0;player.totalTime=0;player.dist=0;
+}
 
+// === Game loop ===
+function gameLoop(ts){
+  if(!lastTime)lastTime=ts;
+  var dt=Math.min((ts-lastTime)/1000,0.05);
+  lastTime=ts;
+  if(gameRunning){
+    if(!segments||segments.length===0)buildTrack();
+    update(dt);
+    render();
+  }
+  if(typeof requestAnimationFrame==='function')rafId=requestAnimationFrame(gameLoop);
+}
+
+// === Start ===
+function startGame(){
+  if(!segments||segments.length===0)buildTrack();
+  document.getElementById('start-screen').style.display='none';
+  resetGame();
+  gameRunning=true;lastTime=0;
+  requestAnimationFrame(gameLoop);
+}
+
+document.getElementById('startBtn').addEventListener('click',startGame);
+document.getElementById('startBtn').addEventListener('touchend',function(e){e.preventDefault();startGame();});
+
+// === Touch controls ===
+function addTouch(id,key){
+  var el=document.getElementById(id);
+  if(!el)return;
+  el.addEventListener('touchstart',function(e){e.preventDefault();keys[key]=true;},{passive:false});
+  el.addEventListener('touchend',function(e){e.preventDefault();keys[key]=false;},{passive:false});
+  el.addEventListener('touchcancel',function(){keys[key]=false;});
+  el.addEventListener('mousedown',function(){keys[key]=true;});
+  el.addEventListener('mouseup',function(){keys[key]=false;});
+  el.addEventListener('mouseleave',function(){keys[key]=false;});
+}
+addTouch('btn-left','ArrowLeft');
+addTouch('btn-right','ArrowRight');
+addTouch('btn-gas','ArrowUp');
+addTouch('btn-brake','ArrowDown');
+
+// === Keyboard ===
+document.addEventListener('keydown',function(e){keys[e.code]=true;if(e.code==='KeyR')resetGame();e.preventDefault();});
+document.addEventListener('keyup',function(e){keys[e.code]=false;e.preventDefault();});
+
+// === Download ===
+document.getElementById('downloadBtn').addEventListener('click',function(){
+  var a=document.createElement('a');a.href='index.html';a.download='cockpit-racer.html';
+  document.body.appendChild(a);a.click();document.body.removeChild(a);
+});
+
+// === Error handler ===
+window.addEventListener('error',function(e){
+  alert('Global error: '+(e.error?e.error.message:'unknown'));
+});
+
+// === Init ===
+buildTrack();
 })();
 </script>
 </body>
