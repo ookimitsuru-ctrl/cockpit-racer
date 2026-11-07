@@ -229,7 +229,7 @@ function render(){
   try{
   // Base segment
   var bs=findSeg(player.z);
-  if(!bs||!bs.p||!bs.p.world||!bs.p2){
+  if(!bs||!bs.p||!bs.p.world||!bs.p2||!bs.p2.world){
     ctx.fillStyle='#111';ctx.fillRect(0,H*0.5,W,H*0.5);
     drawDash();return;
   }
@@ -243,16 +243,18 @@ function render(){
   for(var n=0;n<DRAW_DIST;n++){
     var si=(bi+n)%segments.length;
     var seg=segments[si];
-    if(!seg||!seg.p||!seg.p2)continue;
-    if(!seg.p.world||!seg.p2.world)continue;
-    if(typeof seg.p.world.y!=='number'||typeof seg.p2.world.y!=='number')continue;
+    if(!seg)continue;
+    if(!seg.p||!seg.p.world)continue;
+    if(typeof seg.p.world.y!=='number')continue;
+    if(!seg.p2||!seg.p2.world)continue;
+    if(typeof seg.p2.world.y!=='number')continue;
     var looped=(bi+n)>=segments.length;
     var cz=player.z-(looped?trackLength:0);
     proj(seg.p,player.x*ROAD_W/2-x,pY+CAM_H,cz,CAM_D,W,H,ROAD_W);
     proj(seg.p2,player.x*ROAD_W/2-x-ddx,pY+CAM_H,cz,CAM_D,W,H,ROAD_W);
     x+=ddx;ddx+=seg.curve;
     if(!seg.p.camera||!seg.p2.screen)continue;
-    if(seg.p.camera.z<=CAM_D||seg.p2.screen.y>=maxY)continue;
+    if(typeof seg.p.camera.z!=='number'||seg.p2.screen.y>=maxY)continue;
     projected.push(seg);
     maxY=seg.p2.screen.y;
   }
@@ -260,6 +262,8 @@ function render(){
   for(var i=projected.length-1;i>=0;i--){
     var s=projected[i];
     var p1=s.p.screen,p2=s.p2.screen;
+    if(typeof p1.y!=='number'&&typeof p1.screen.y!=='number')continue;
+    if(typeof p2.y!=='number'&&typeof p2.screen.y!=='number')continue;
     var dk=s.color==='dark';
     ctx.fillStyle=dk?'#0a3a0a':'#0b4a0b';
     ctx.fillRect(0,p2.screen.y,W,p1.screen.y-p2.screen.y);
