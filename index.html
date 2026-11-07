@@ -6,8 +6,9 @@
 <title>COCKPIT RACER</title>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
-  body { background: #000; overflow: hidden; display: flex; justify-content: center; align-items: center; height: 100vh; font-family: 'Courier New', monospace; }
-  canvas { display: block; image-rendering: pixelated; }
+  html, body { background: #000; overflow: hidden; width: 100%; height: 100%; }
+  body { display: flex; justify-content: center; align-items: center; height: 100dvh; font-family: 'Courier New', monospace; }
+  canvas { display: block; image-rendering: pixelated; width: 100vw; height: 100dvh; }
   #start-screen { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; background: #000; z-index: 10; color: #fff; }
   #start-screen h1 { font-size: 48px; color: #ff4400; text-shadow: 0 0 20px #ff4400, 0 0 40px #ff2200; margin-bottom: 20px; letter-spacing: 8px; }
   #start-screen .subtitle { font-size: 14px; color: #888; margin-bottom: 40px; }
@@ -20,12 +21,14 @@
   #speed-val { color: #ff4400; font-size: 20px; }
   /* Touch controls */
   .touch-controls { display: none; position: absolute; bottom: 0; left: 0; width: 100%; height: 200px; z-index: 6; pointer-events: none; }
+  .touch-controls.hidden { display: none !important; }
   .touch-btn { position: absolute; pointer-events: all; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 28px; color: rgba(255,255,255,0.5); user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; }
   .touch-btn:active { background: rgba(255,255,255,0.15) !important; }
   #btn-left { left: 10px; bottom: 60px; width: 80px; height: 80px; background: rgba(255,68,0,0.2); border: 2px solid rgba(255,68,0,0.4); }
   #btn-right { left: 100px; bottom: 60px; width: 80px; height: 80px; background: rgba(255,68,0,0.2); border: 2px solid rgba(255,68,0,0.4); }
   #btn-gas { right: 10px; bottom: 80px; width: 90px; height: 90px; background: rgba(0,180,0,0.2); border: 2px solid rgba(0,180,0,0.4); }
   #btn-brake { right: 110px; bottom: 80px; width: 80px; height: 80px; background: rgba(180,0,0,0.2); border: 2px solid rgba(180,0,0,0.4); }
+  #start-screen .start-btn { touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
   @media (max-width: 768px), (pointer: coarse) {
     .touch-controls { display: block; }
     #start-screen .controls { display: none; }
@@ -1230,14 +1233,23 @@ function gameLoop(timestamp) {
 }
 
 // --- Start ---
-document.getElementById('startBtn').addEventListener('click', () => {
-  document.getElementById('start-screen').style.display = 'none';
-  initAudio();
-  resetGame();
-  gameRunning = true;
-  lastTime = 0;
-  requestAnimationFrame(gameLoop);
-});
+const startBtn = document.getElementById('startBtn');
+function startGame() {
+  try {
+    document.getElementById('start-screen').style.display = 'none';
+    document.getElementById('touch-controls').classList.add('hidden');
+    initAudio();
+    resetGame();
+    gameRunning = true;
+    lastTime = 0;
+    requestAnimationFrame(gameLoop);
+  } catch (e) {
+    console.error('Game start error:', e);
+    alert('エラーが発生しました: ' + e.message);
+  }
+}
+startBtn.addEventListener('click', startGame);
+startBtn.addEventListener('touchend', (e) => { e.preventDefault(); startGame(); });
 
 // --- Download ---
 document.getElementById('downloadBtn').addEventListener('click', () => {
@@ -1247,6 +1259,11 @@ document.getElementById('downloadBtn').addEventListener('click', () => {
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
+});
+
+// --- Error handling ---
+window.addEventListener('error', (e) => {
+  console.error('Uncaught error:', e.error);
 });
 
 // Initial render
