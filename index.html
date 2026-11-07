@@ -139,15 +139,20 @@ function findSeg(z){
 function proj(p,cx,cy,cz,cd,w,h,rw){
   if(!p)return;
   if(!p.world||typeof p.world.y!=='number'||typeof p.world.z!=='number')return;
+  try{
   p.camera=p.camera||{};
   p.camera.x=p.world.x-cx;
   p.camera.y=p.world.y-cy;
   p.camera.z=p.world.z-cz;
   if(p.camera.z<=0.1)p.camera.z=0.1;
+  p.screen=p.screen||{};
   p.screen.scale=cd/p.camera.z*w/2;
   p.screen.x=Math.round(w/2+p.screen.scale*p.camera.x);
   p.screen.y=Math.round(h/2-p.screen.scale*p.camera.y);
   p.screen.w=Math.round(p.screen.scale*rw);
+  }catch(e){
+    throw new Error('proj FAIL: p.world.y='+p.world.y+' p.world.z='+p.world.z+' cx='+cx+' cy='+cy+' cz='+cz);
+  }
 }
 
 // === Draw trapezoid ===
