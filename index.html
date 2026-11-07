@@ -1237,7 +1237,7 @@ const startBtn = document.getElementById('startBtn');
 function startGame() {
   try {
     document.getElementById('start-screen').style.display = 'none';
-    document.getElementById('touch-controls').classList.add('hidden');
+    document.querySelector('.touch-controls').classList.add('hidden');
     initAudio();
     resetGame();
     gameRunning = true;
