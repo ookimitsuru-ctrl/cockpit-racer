@@ -129,6 +129,7 @@ function findSeg(z){
 function proj(p,cx,cy,cz,cd,w,h,rw){
   if(!p)return;
   if(!p.world||typeof p.world.y!=='number'||typeof p.world.z!=='number')return;
+  try{
   p.camera=p.camera||{};
   p.camera.x=p.world.x-cx;
   p.camera.y=p.world.y-cy;
@@ -138,6 +139,9 @@ function proj(p,cx,cy,cz,cd,w,h,rw){
   p.screen.x=Math.round(w/2+p.screen.scale*p.camera.x);
   p.screen.y=Math.round(h/2-p.screen.scale*p.camera.y);
   p.screen.w=Math.round(p.screen.scale*rw);
+  }catch(e){
+    throw new Error('proj FAIL: '+e.message+' p.world.y='+p.world.y+' p.world.z='+p.world.z);
+  }
 }
 
 // === Draw trapezoid ===
@@ -265,7 +269,11 @@ function render(){
     ctx.fillText('player.z='+player.z,10,80);
     ctx.fillText('player.speed='+player.speed,10,100);
     ctx.fillText('bs='+!!bs+' bs.p='+!!(bs&&bs.p)+' bs.p.world='+!!(bs&&bs.p&&bs.p.world),10,120);
-    ctx.fillText('stack: '+e.stack.split('\n')[1],10,140);
+    ctx.fillText('bs.p2='+!!(bs&&bs.p2)+' bs.p2.w='+!!(bs&&bs.p2&&bs.p2.world),10,140);
+    var lines=(e.stack||'').split('\n');
+    for(var li=0;li<Math.min(lines.length,5);li++){
+      ctx.fillText('st'+li+': '+lines[li],10,160+li*16);
+    }
   }
 }
 
