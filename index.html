@@ -34,7 +34,7 @@ canvas{display:block;width:100%;height:100%}
 <button id="startBtn">START</button>
 <button id="downloadBtn">DOWNLOAD</button>
 </div>
-<canvas id="game"></canvas>
+<canvas id="game" width="320" height="480"></canvas>
 <div class="touch-controls">
 <div class="touch-btn" id="btn-left">◀</div>
 <div class="touch-btn" id="btn-right">▶</div>
@@ -192,23 +192,29 @@ function render(){
   ctx.clearRect(0,0,W,H);
   
   // Sky
+  try{
   var sg=ctx.createLinearGradient(0,0,0,H*0.5);
   sg.addColorStop(0,'#000022');sg.addColorStop(1,'#1a2a5a');
   ctx.fillStyle=sg;ctx.fillRect(0,0,W,H*0.5);
+  }catch(e){alert('SKY ERR: '+e.message);return;}
   
   // Stars
+  try{
   ctx.fillStyle='#fff';
   for(var i=0;i<30;i++){
     ctx.fillRect((i*137.5+player.z*0.001)%W,(i*97.3)%(H*0.35),1.5,1.5);
   }
+  }catch(e){}
   
   // Mountains
+  try{
   ctx.fillStyle='#0a1a3a';ctx.beginPath();ctx.moveTo(0,H*0.45);
   for(var i=0;i<=W;i+=3){
     var mh=Math.sin(i*0.003+player.z*0.00005)*40+Math.sin(i*0.007+1)*25;
     ctx.lineTo(i,H*0.42-mh);
   }
   ctx.lineTo(W,H*0.5);ctx.lineTo(0,H*0.5);ctx.fill();
+  }catch(e){}
   
   // Base segment
   var bs=findSeg(player.z);
@@ -340,9 +346,15 @@ function gameLoop(ts){
 // === Start ===
 function startGame(){
   if(!segments||segments.length===0)buildTrack();
+  // Set canvas size
+  canvas.width=window.innerWidth;
+  canvas.height=window.innerHeight;
+  W=canvas.width;H=canvas.height;
   document.getElementById('start-screen').style.display='none';
   resetGame();
   gameRunning=true;lastTime=0;
+  // Test draw
+  try{ctx.fillStyle='#ff0000';ctx.fillRect(0,0,10,10);ctx.fillStyle='#000';ctx.fillRect(0,0,W,H);}catch(e2){alert('CANVAS TEST FAIL: '+e2.message);}
   requestAnimationFrame(gameLoop);
 }
 
