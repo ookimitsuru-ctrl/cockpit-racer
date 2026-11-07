@@ -66,12 +66,16 @@
 
   // --- Canvas ---
   const canvas = document.getElementById('game');
-  const ctx = canvas.getContext('2d');
+  let ctx = null;
+  if (canvas) {
+    ctx = canvas.getContext('2d');
+  }
   let W = 0, H = 0;
 
   function resize() {
-    W = canvas.width = window.innerWidth;
-    H = canvas.height = window.innerHeight;
+    if (!canvas) return;
+    W = canvas.width = window.innerWidth || 320;
+    H = canvas.height = window.innerHeight || 480;
   }
   resize();
   window.addEventListener('resize', resize);
@@ -299,6 +303,7 @@
 
   // --- Render ---
   function render() {
+    if (!ctx) return;
     try {
       ctx.clearRect(0, 0, W, H);
       
@@ -422,74 +427,82 @@
   }
 
   function drawDashboard() {
-    const isMobile = W < 768;
-    const dashY = isMobile ? H * 0.75 : H * 0.8;
-    const dashH = H - dashY;
-    
-    // Dashboard background
-    ctx.fillStyle = '#1a1a1a';
-    ctx.fillRect(0, dashY, W, dashH);
-    
-    // Steering wheel
-    const steerW = isMobile ? W * 0.5 : W * 0.35;
-    const steerH = dashH * 0.6;
-    const steerCx = W / 2;
-    const steerCy = dashY + dashH * 0.4;
-    
-    ctx.strokeStyle = '#333';
-    ctx.lineWidth = isMobile ? 8 : 12;
-    ctx.beginPath();
-    ctx.ellipse(steerCx, steerCy, steerW, steerH, 0, 0, Math.PI * 2);
-    ctx.stroke();
-    
-    // Steering wheel spokes
-    ctx.strokeStyle = '#2a2a2a';
-    ctx.lineWidth = isMobile ? 6 : 8;
-    for (let i = 0; i < 3; i++) {
-      const angle = (i / 3) * Math.PI * 2 + Math.PI / 2;
+    if (!ctx || W <= 0 || H <= 0) return;
+    try {
+      const isMobile = W < 768;
+      const dashY = isMobile ? H * 0.75 : H * 0.8;
+      const dashH = H - dashY;
+      
+      // Dashboard background
+      ctx.fillStyle = '#1a1a1a';
+      ctx.fillRect(0, dashY, W, dashH);
+      
+      // Steering wheel
+      const steerW = isMobile ? W * 0.5 : W * 0.35;
+      const steerH = dashH * 0.6;
+      const steerCx = W / 2;
+      const steerCy = dashY + dashH * 0.4;
+      
+      ctx.strokeStyle = '#333';
+      ctx.lineWidth = isMobile ? 8 : 12;
       ctx.beginPath();
-      ctx.moveTo(steerCx, steerCy);
-      ctx.lineTo(steerCx + Math.cos(angle) * steerW * 0.8, steerCy + Math.sin(angle) * steerH * 0.8);
+      ctx.ellipse(steerCx, steerCy, steerW, steerH, 0, 0, Math.PI * 2);
       ctx.stroke();
+      
+      // Steering wheel spokes
+      ctx.strokeStyle = '#2a2a2a';
+      ctx.lineWidth = isMobile ? 6 : 8;
+      for (let i = 0; i < 3; i++) {
+        const angle = (i / 3) * Math.PI * 2 + Math.PI / 2;
+        ctx.beginPath();
+        ctx.moveTo(steerCx, steerCy);
+        ctx.lineTo(steerCx + Math.cos(angle) * steerW * 0.8, steerCy + Math.sin(angle) * steerH * 0.8);
+        ctx.stroke();
+      }
+      
+      // Speedometer
+      const speedoX = isMobile ? W * 0.75 : W * 0.85;
+      const speedoY = dashY + dashH * 0.5;
+      const speedoR = isMobile ? Math.min(W, H) * 0.1 : Math.min(W, H) * 0.12;
+      
+      ctx.fillStyle = '#0a0a0a';
+      ctx.beginPath();
+      ctx.arc(speedoX, speedoY, speedoR, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.strokeStyle = '#333';
+      ctx.lineWidth = 3;
+      ctx.stroke();
+      
+      // Speed needle
+      const kmh = Math.round(player.speed / player.maxSpeed * 280);
+      const needleAngle = -Math.PI * 0.75 + (kmh / 280) * Math.PI * 1.5;
+      ctx.strokeStyle = '#ff4400';
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.moveTo(speedoX, speedoY);
+      ctx.lineTo(speedoX + Math.cos(needleAngle) * speedoR * 0.7, speedoY + Math.sin(needleAngle) * speedoR * 0.7);
+      ctx.stroke();
+      
+      // Speed text
+      ctx.fillStyle = '#ff4400';
+      ctx.font = `bold ${isMobile ? 20 : 24}px 'Courier New'`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(kmh, speedoX, speedoY);
+      ctx.fillStyle = '#666';
+      ctx.font = `${isMobile ? 10 : 12}px 'Courier New'`;
+      ctx.fillText('km/h', speedoX, speedoY + speedoR * 0.4);
+      
+      // Update HUD
+      const sv = document.getElementById('speed-val');
+      const dv = document.getElementById('dist-val');
+      const tv = document.getElementById('time-val');
+      if (sv) sv.textContent = kmh + ' km/h';
+      if (dv) dv.textContent = 'DIST: ' + player.distance.toFixed(1) + ' km';
+      if (tv) tv.textContent = 'TIME: ' + formatTime(player.totalTime);
+    } catch(e) {
+      console.error('Dashboard error:', e);
     }
-    
-    // Speedometer
-    const speedoX = isMobile ? W * 0.75 : W * 0.85;
-    const speedoY = dashY + dashH * 0.5;
-    const speedoR = isMobile ? Math.min(W, H) * 0.1 : Math.min(W, H) * 0.12;
-    
-    ctx.fillStyle = '#0a0a0a';
-    ctx.beginPath();
-    ctx.arc(speedoX, speedoY, speedoR, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.strokeStyle = '#333';
-    ctx.lineWidth = 3;
-    ctx.stroke();
-    
-    // Speed needle
-    const kmh = Math.round(player.speed / player.maxSpeed * 280);
-    const needleAngle = -Math.PI * 0.75 + (kmh / 280) * Math.PI * 1.5;
-    ctx.strokeStyle = '#ff4400';
-    ctx.lineWidth = 3;
-    ctx.beginPath();
-    ctx.moveTo(speedoX, speedoY);
-    ctx.lineTo(speedoX + Math.cos(needleAngle) * speedoR * 0.7, speedoY + Math.sin(needleAngle) * speedoR * 0.7);
-    ctx.stroke();
-    
-    // Speed text
-    ctx.fillStyle = '#ff4400';
-    ctx.font = `bold ${isMobile ? 20 : 24}px 'Courier New'`;
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.fillText(kmh, speedoX, speedoY);
-    ctx.fillStyle = '#666';
-    ctx.font = `${isMobile ? 10 : 12}px 'Courier New'`;
-    ctx.fillText('km/h', speedoX, speedoY + speedoR * 0.4);
-    
-    // Update HUD
-    document.getElementById('speed-val').textContent = kmh + ' km/h';
-    document.getElementById('dist-val').textContent = 'DIST: ' + player.distance.toFixed(1) + ' km';
-    document.getElementById('time-val').textContent = 'TIME: ' + formatTime(player.totalTime);
   }
 
   function formatTime(t) {
@@ -526,11 +539,25 @@
       if (!segments || segments.length === 0) {
         buildTrack();
       }
-      update(dt);
-      render();
+      if (!ctx) {
+        // Fallback: draw plain background
+        try {
+          const dummyCanvas = document.createElement('canvas');
+          const dummyCtx = dummyCanvas.getContext('2d');
+          if (dummyCtx) {
+            dummyCtx.fillStyle = '#000';
+            dummyCtx.fillRect(0, 0, W || 320, H || 480);
+          }
+        } catch(e) {}
+      } else {
+        update(dt);
+        render();
+      }
     }
     
-    rafId = requestAnimationFrame(gameLoop);
+    if (typeof requestAnimationFrame === 'function') {
+      rafId = requestAnimationFrame(gameLoop);
+    }
   }
 
   // --- Start ---
