@@ -37,7 +37,7 @@ canvas{display:block;width:100%;height:100%}
 <div class="touch-btn" id="btn-brake">🛑</div>
 <div class="touch-btn" id="btn-gas">🏎️</div>
 </div>
-<div id="hud"><div id="speed-val">0 km/h</div><div id="dist-val">DIST: 0.0 km</div><div id="time-val">TIME: 0:00</div></div>
+<div id="hud"><div id="version-display">V: </div><div id="speed-val">0 km/h</div><div id="dist-val">DIST: 0.0 km</div><div id="time-val">TIME: 0:00</div></div>
 <script>
 (function(){
 'use strict';
@@ -55,7 +55,7 @@ var DRAW_DIST=150;
 var CAM_H=1000;
 var CAM_D=0.84;
 
-// === State ===
+var VERSION='v3';
 var segments=[];
 var trackLength=0;
 var player={x:0,z:0,speed:0,maxSpeed:SEG_LEN*60,accel:SEG_LEN*12,decel:SEG_LEN*8,brake:SEG_LEN*20,steer:0,lap:0,lapTime:0,totalTime:0,dist:0};
@@ -123,7 +123,8 @@ function findSeg(z){
 
 // === Project ===
 function proj(p,cx,cy,cz,cd,w,h,rw){
-  if(!p||!p.world)return;
+  if(!p)return;
+  if(!p.world||typeof p.world.y!=='number'||typeof p.world.z!=='number')return;
   p.camera=p.camera||{};
   p.camera.x=p.world.x-cx;
   p.camera.y=p.world.y-cy;
@@ -210,6 +211,12 @@ function render(){
   
   var bi=Math.floor(player.z/SEG_LEN)%segments.length;
   var bp=(player.z%SEG_LEN)/SEG_LEN;
+  if(typeof bs.p.world.y!=='number'||typeof bs.p2.world.y!=='number'){
+    ctx.fillStyle='#111';ctx.fillRect(0,H*0.5,W,H*0.5);
+    ctx.fillStyle='#ff0000';ctx.font='12px monospace';
+    ctx.fillText('BAD Y: bs.p.world.y='+bs.p.world.y+' bs.p2.world.y='+bs.p2.world.y,10,20);
+    drawDash();return;
+  }
   var pY=bs.p.world.y+(bs.p2.world.y-bs.p.world.y)*bp;
   var maxY=H,x=0,ddx=-(bs.curve*bp);
   var projected=[];
@@ -218,6 +225,8 @@ function render(){
     var si=(bi+n)%segments.length;
     var seg=segments[si];
     if(!seg||!seg.p||!seg.p2)continue;
+    if(!seg.p.world||!seg.p2.world)continue;
+    if(typeof seg.p.world.y!=='number'||typeof seg.p2.world.y!=='number')continue;
     var looped=(bi+n)>=segments.length;
     var cz=player.z-(looped?trackLength:0);
     proj(seg.p,player.x*ROAD_W/2-x,pY+CAM_H,cz,CAM_D,W,H,ROAD_W);
@@ -289,9 +298,11 @@ function drawDash(){
   var sv=document.getElementById('speed-val');
   var dv=document.getElementById('dist-val');
   var tv=document.getElementById('time-val');
+  var vd=document.getElementById('version-display');
   if(sv)sv.textContent=kmh+' km/h';
   if(dv)dv.textContent='DIST: '+player.dist.toFixed(1)+' km';
   if(tv){var m=Math.floor(player.totalTime/60);var s=Math.floor(player.totalTime%60);tv.textContent='TIME: '+m+':'+(s<10?'0':'')+s;}
+  if(vd)vd.textContent='V:'+VERSION;
 }
 
 // === Reset ===
