@@ -139,7 +139,6 @@ function findSeg(z){
 function proj(p,cx,cy,cz,cd,w,h,rw){
   if(!p)return;
   if(!p.world||typeof p.world.y!=='number'||typeof p.world.z!=='number')return;
-  try{
   p.camera=p.camera||{};
   p.camera.x=p.world.x-cx;
   p.camera.y=p.world.y-cy;
@@ -149,9 +148,6 @@ function proj(p,cx,cy,cz,cd,w,h,rw){
   p.screen.x=Math.round(w/2+p.screen.scale*p.camera.x);
   p.screen.y=Math.round(h/2-p.screen.scale*p.camera.y);
   p.screen.w=Math.round(p.screen.scale*rw);
-  }catch(e){
-    throw new Error('proj FAIL: '+e.message+' p.world.y='+p.world.y+' p.world.z='+p.world.z);
-  }
 }
 
 // === Draw trapezoid ===
@@ -198,33 +194,25 @@ function update(dt){
 // === Render ===
 function render(){
   if(!ctx)return;
-  try{
   ctx.clearRect(0,0,W,H);
   
-  // Sky
-  try{
-  var sg=ctx.createLinearGradient(0,0,0,H*0.5);
-  sg.addColorStop(0,'#000022');sg.addColorStop(1,'#1a2a5a');
-  ctx.fillStyle=sg;ctx.fillRect(0,0,W,H*0.5);
-  }catch(e){alert('SKY ERR: '+e.message);return;}
+  // Sky - simple fill
+  ctx.fillStyle='#000022';
+  ctx.fillRect(0,0,W,H*0.5);
   
   // Stars
-  try{
   ctx.fillStyle='#fff';
   for(var i=0;i<30;i++){
     ctx.fillRect((i*137.5+player.z*0.001)%W,(i*97.3)%(H*0.35),1.5,1.5);
   }
-  }catch(e){}
   
   // Mountains
-  try{
   ctx.fillStyle='#0a1a3a';ctx.beginPath();ctx.moveTo(0,H*0.45);
   for(var i=0;i<=W;i+=3){
     var mh=Math.sin(i*0.003+player.z*0.00005)*40+Math.sin(i*0.007+1)*25;
     ctx.lineTo(i,H*0.42-mh);
   }
   ctx.lineTo(W,H*0.5);ctx.lineTo(0,H*0.5);ctx.fill();
-  }catch(e){}
   
   // Base segment
   var bs=findSeg(player.z);
@@ -235,12 +223,6 @@ function render(){
   
   var bi=Math.floor(player.z/SEG_LEN)%segments.length;
   var bp=(player.z%SEG_LEN)/SEG_LEN;
-  if(typeof bs.p.world.y!=='number'||typeof bs.p2.world.y!=='number'){
-    ctx.fillStyle='#111';ctx.fillRect(0,H*0.5,W,H*0.5);
-    ctx.fillStyle='#ff0000';ctx.font='12px monospace';
-    ctx.fillText('BAD Y: bs.p.world.y='+bs.p.world.y+' bs.p2.world.y='+bs.p2.world.y,10,20);
-    drawDash();return;
-  }
   var pY=bs.p.world.y+(bs.p2.world.y-bs.p.world.y)*bp;
   var maxY=H,x=0,ddx=-(bs.curve*bp);
   var projected=[];
@@ -275,22 +257,6 @@ function render(){
     if(!dk){ctx.fillStyle='#fff';drawTrap(p1.screen.x,p1.screen.y,p1.screen.w*0.01,p2.screen.x,p2.screen.y,p2.screen.w*0.01);}
   }
   drawDash();
-  }catch(e){
-    if(!ctx)return;
-    ctx.fillStyle='#000';ctx.fillRect(0,0,W,H);
-    ctx.fillStyle='#ff0000';ctx.font='14px monospace';
-    ctx.fillText('RENDER ERR: '+e.message,10,20);
-    ctx.fillText('ctx='+!!ctx+' W='+W+' H='+H,10,40);
-    ctx.fillText('segments='+segments.length,10,60);
-    ctx.fillText('player.z='+player.z,10,80);
-    ctx.fillText('player.speed='+player.speed,10,100);
-    ctx.fillText('bs='+!!bs+' bs.p='+!!(bs&&bs.p)+' bs.p.world='+!!(bs&&bs.p&&bs.p.world),10,120);
-    ctx.fillText('bs.p2='+!!(bs&&bs.p2)+' bs.p2.w='+!!(bs&&bs.p2&&bs.p2.world),10,140);
-    var lines=(e.stack||'').split('\n');
-    for(var li=0;li<Math.min(lines.length,5);li++){
-      ctx.fillText('st'+li+': '+lines[li],10,160+li*16);
-    }
-  }
 }
 
 // === Dashboard ===
@@ -342,7 +308,6 @@ function resetGame(){
 
 // === Game loop ===
 function gameLoop(ts){
-  try{
   if(!lastTime)lastTime=ts;
   var dt=Math.min((ts-lastTime)/1000,0.05);
   lastTime=ts;
@@ -352,32 +317,17 @@ function gameLoop(ts){
     render();
   }
   if(typeof requestAnimationFrame==='function')rafId=requestAnimationFrame(gameLoop);
-  }catch(e){
-    if(!ctx)return;
-    ctx.fillStyle='#000';ctx.fillRect(0,0,W,H);
-    ctx.fillStyle='#ff0000';ctx.font='14px monospace';
-    ctx.fillText('GAMELOOP ERR: '+e.message,10,20);
-    ctx.fillText('gameRunning='+gameRunning+' lastTime='+lastTime,10,40);
-    ctx.fillText('rafId='+rafId,10,60);
-    var lines=(e.stack||'').split('\n');
-    for(var li=0;li<Math.min(lines.length,5);li++){
-      ctx.fillText('st'+li+': '+lines[li],10,80+li*16);
-    }
-  }
 }
 
 // === Start ===
 function startGame(){
   if(!segments||segments.length===0)buildTrack();
-  // Set canvas size
   canvas.width=window.innerWidth;
   canvas.height=window.innerHeight;
   W=canvas.width;H=canvas.height;
   document.getElementById('start-screen').style.display='none';
   resetGame();
   gameRunning=true;lastTime=0;
-  // Test draw
-  try{ctx.fillStyle='#ff0000';ctx.fillRect(0,0,10,10);ctx.fillStyle='#000';ctx.fillRect(0,0,W,H);}catch(e2){alert('CANVAS TEST FAIL: '+e2.message);}
   requestAnimationFrame(gameLoop);
 }
 
