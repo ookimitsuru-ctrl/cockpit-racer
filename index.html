@@ -342,6 +342,7 @@ function resetGame(){
 
 // === Game loop ===
 function gameLoop(ts){
+  try{
   if(!lastTime)lastTime=ts;
   var dt=Math.min((ts-lastTime)/1000,0.05);
   lastTime=ts;
@@ -351,6 +352,18 @@ function gameLoop(ts){
     render();
   }
   if(typeof requestAnimationFrame==='function')rafId=requestAnimationFrame(gameLoop);
+  }catch(e){
+    if(!ctx)return;
+    ctx.fillStyle='#000';ctx.fillRect(0,0,W,H);
+    ctx.fillStyle='#ff0000';ctx.font='14px monospace';
+    ctx.fillText('GAMELOOP ERR: '+e.message,10,20);
+    ctx.fillText('gameRunning='+gameRunning+' lastTime='+lastTime,10,40);
+    ctx.fillText('rafId='+rafId,10,60);
+    var lines=(e.stack||'').split('\n');
+    for(var li=0;li<Math.min(lines.length,5);li++){
+      ctx.fillText('st'+li+': '+lines[li],10,80+li*16);
+    }
+  }
 }
 
 // === Start ===
