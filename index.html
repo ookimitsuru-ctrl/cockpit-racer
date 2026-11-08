@@ -343,21 +343,23 @@ function render(){
     var treeW=Math.round(treeScale*100);
     var treeH=Math.round(treeScale*tree.h);
     if(treeScreenY<=0||treeScreenY>=H||treeW<2)continue;
-    // Trunk
-    ctx.fillStyle='#4a2a0a';
-    ctx.fillRect(treeScreenX-treeW*0.15,treeScreenY-treeH*0.4,treeW*0.3,treeH*0.4);
-    // Foliage
-    ctx.fillStyle='#0a5a0a';
-    ctx.beginPath();
-    ctx.moveTo(treeScreenX,treeScreenY-treeH);
-    ctx.lineTo(treeScreenX-treeW*0.7,treeScreenY-treeH*0.3);
-    ctx.lineTo(treeScreenX+treeW*0.7,treeScreenY-treeH*0.3);
-    ctx.fill();
-    ctx.beginPath();
-    ctx.moveTo(treeScreenX,treeScreenY-treeH*0.75);
-    ctx.lineTo(treeScreenX-treeW*0.8,treeScreenY-treeH*0.05);
-    ctx.lineTo(treeScreenX+treeW*0.8,treeScreenY-treeH*0.05);
-    ctx.fill();
+    // Trunk (thin, tall)
+    ctx.fillStyle='#3a1a05';
+    ctx.fillRect(treeScreenX-treeW*0.08,treeScreenY-treeH*0.35,treeW*0.16,treeH*0.35);
+    // Cedar foliage - layered triangles (杉の段状樹冠)
+    var layers=4;
+    for(var l=0;l<layers;l++){
+      var ly=treeScreenY-treeH*0.35-l*(treeH*0.18);
+      var lw=treeW*(0.55-l*0.08);
+      var lh=treeH*0.22;
+      var shade=80+l*15;
+      ctx.fillStyle='rgb(10,'+Math.min(shade,160)+',10)';
+      ctx.beginPath();
+      ctx.moveTo(treeScreenX,ly-lh);
+      ctx.lineTo(treeScreenX-lw,ly);
+      ctx.lineTo(treeScreenX+lw,ly);
+      ctx.fill();
+    }
   }
   }catch(e){throw new Error('DRAW:'+e.message);}
   }catch(e){throw new Error('ROAD:'+e.message);}
