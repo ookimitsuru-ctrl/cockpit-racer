@@ -200,7 +200,6 @@ function update(dt){
   // Update traffic
   for(var t=0;t<traffic.length;t++){
     var car=traffic[t];
-    var relSpeed=(player.speed-car.speed)*dt;
     car.z+=car.speed*dt;
     if(car.z>=trackLength)car.z-=trackLength;
     if(car.z<0)car.z+=trackLength;
@@ -208,7 +207,7 @@ function update(dt){
     if(player.speed>car.speed){
       var dz=player.z-car.z;
       if(dz<0)dz+=trackLength;
-      if(dz<SEG_LEN*2&&Math.abs(player.x-car.x*ROAD_W*0.5)<car.w){
+      if(dz<SEG_LEN*2&&Math.abs(player.x-car.x)<car.w){
         player.speed=car.speed*0.5;
       }
     }
