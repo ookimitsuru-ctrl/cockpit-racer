@@ -305,6 +305,7 @@ function render(){
     if(cz>CAM_D*SEG_LEN*DRAW_DIST)continue;
     if(carSeg.p.camera.z<=CAM_D)continue;
     var carWorldX=car.x*ROAD_W;
+    var carY=carSeg.p.world.y;
     var carScale=CAM_D/carSeg.p.camera.z*W/2;
     var carScreenX=Math.round(W/2+carScale*(carWorldX-player.x*ROAD_W/2));
     var carScreenY=Math.round(H/2-carScale*(carY-CAM_H));
@@ -346,13 +347,13 @@ function render(){
     ctx.fillStyle='#0a5a0a';
     ctx.beginPath();
     ctx.moveTo(treeScreenX,treeScreenY-treeH);
-    ctx.lineTo(treeScreenX-treeW*0.5,treeScreenY-treeH*0.3);
-    ctx.lineTo(treeScreenX+treeW*0.5,treeScreenY-treeH*0.3);
+    ctx.lineTo(treeScreenX-treeW*0.7,treeScreenY-treeH*0.3);
+    ctx.lineTo(treeScreenX+treeW*0.7,treeScreenY-treeH*0.3);
     ctx.fill();
     ctx.beginPath();
-    ctx.moveTo(treeScreenX,treeScreenY-treeH*0.8);
-    ctx.lineTo(treeScreenX-treeW*0.6,treeScreenY-treeH*0.1);
-    ctx.lineTo(treeScreenX+treeW*0.6,treeScreenY-treeH*0.1);
+    ctx.moveTo(treeScreenX,treeScreenY-treeH*0.75);
+    ctx.lineTo(treeScreenX-treeW*0.8,treeScreenY-treeH*0.05);
+    ctx.lineTo(treeScreenX+treeW*0.8,treeScreenY-treeH*0.05);
     ctx.fill();
   }
   }catch(e){throw new Error('DRAW:'+e.message);}
@@ -426,7 +427,7 @@ function resetGame(){
       z:Math.floor(Math.random()*trackLength),
       side:Math.random()>0.5?1:-1,
       offset:1.1+Math.random()*0.8,
-      h:400+Math.random()*300
+      h:800+Math.random()*600
     });
   }
 }
