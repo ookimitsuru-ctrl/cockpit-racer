@@ -208,9 +208,12 @@ function update(dt){
     if(player.speed>car.speed){
       var dz=player.z-car.z;
       if(dz<0)dz+=trackLength;
-      var carWorldX=car.x*ROAD_W;
-      if(dz<SEG_LEN*2&&Math.abs(player.x-carWorldX)<car.w){
-        player.speed=car.speed*0.5;
+      if(dz<SEG_LEN*2){
+        var pWX=player.x*ROAD_W/2;
+        var cWX=car.x*ROAD_W/2;
+        if(Math.abs(pWX-cWX)<car.w){
+          player.speed=car.speed*0.7;
+        }
       }
     }
   }
@@ -304,7 +307,7 @@ function render(){
     if(cz<0)cz+=trackLength;
     if(cz>CAM_D*SEG_LEN*DRAW_DIST)continue;
     if(carSeg.p.camera.z<=CAM_D)continue;
-    var carWorldX=car.x*ROAD_W;
+    var carWorldX=car.x*ROAD_W/2;
     var carY=carSeg.p.world.y;
     var carScale=CAM_D/carSeg.p.camera.z*W/2;
     var carScreenX=Math.round(W/2+carScale*(carWorldX-player.x*ROAD_W/2));
@@ -414,10 +417,10 @@ function resetGame(){
   for(var i=0;i<numCars;i++){
     traffic.push({
       z:Math.floor(Math.random()*trackLength),
-      x:(Math.random()*1.4-0.7),
+      x:(Math.random()*2-1),
       speed:SEG_LEN*(20+Math.random()*30),
       color:trafficColors[i%trafficColors.length],
-      w:300
+      w:250
     });
   }
   // Init trees
