@@ -69,12 +69,13 @@ var DRAW_DIST=150;
 var CAM_H=1000;
 var CAM_D=0.84;
 
-var VERSION='v5';
+var VERSION='v6';
 var segments=[];
 var trackLength=0;
 var player={x:0,z:0,speed:0,maxSpeed:SEG_LEN*60,accel:SEG_LEN*12,decel:SEG_LEN*8,brake:SEG_LEN*20,steer:0,lap:0,lapTime:0,totalTime:0,dist:0};
 var traffic=[];
 var trafficColors=['#cc3333','#3333cc','#cccc33','#33cc33','#cc6600','#9933cc','#00cccc'];
+var trees=[];
 var keys={};
 var gameRunning=false;
 var lastTime=0;
@@ -207,7 +208,8 @@ function update(dt){
     if(player.speed>car.speed){
       var dz=player.z-car.z;
       if(dz<0)dz+=trackLength;
-      if(dz<SEG_LEN*2&&Math.abs(player.x-car.x)<car.w){
+      var carWorldX=car.x*ROAD_W;
+      if(dz<SEG_LEN*2&&Math.abs(player.x-carWorldX)<car.w){
         player.speed=car.speed*0.5;
       }
     }
@@ -302,10 +304,9 @@ function render(){
     if(cz<0)cz+=trackLength;
     if(cz>CAM_D*SEG_LEN*DRAW_DIST)continue;
     if(carSeg.p.camera.z<=CAM_D)continue;
-    var cx=car.x*ROAD_W*0.5;
-    var carY=carSeg.p.world.y;
+    var carWorldX=car.x*ROAD_W;
     var carScale=CAM_D/carSeg.p.camera.z*W/2;
-    var carScreenX=Math.round(W/2+carScale*(cx-player.x*ROAD_W/2));
+    var carScreenX=Math.round(W/2+carScale*(carWorldX-player.x*ROAD_W/2));
     var carScreenY=Math.round(H/2-carScale*(carY-CAM_H));
     var carScreenW=Math.round(carScale*car.w);
     var carH=carScreenW*1.2;
@@ -320,6 +321,39 @@ function render(){
     ctx.fillStyle='#ff0000';
     ctx.fillRect(carScreenX-carScreenW*0.45,carScreenY-carH*0.15,carScreenW*0.15,carH*0.1);
     ctx.fillRect(carScreenX+carScreenW*0.3,carScreenY-carH*0.15,carScreenW*0.15,carH*0.1);
+  }
+  
+  // Draw trees
+  for(var t=0;t<trees.length;t++){
+    var tree=trees[t];
+    var treeSeg=findSeg(tree.z);
+    if(!treeSeg||!treeSeg.p||!treeSeg.p.camera)continue;
+    var cz=tree.z-player.z;
+    if(cz<0)cz+=trackLength;
+    if(cz>CAM_D*SEG_LEN*DRAW_DIST)continue;
+    if(treeSeg.p.camera.z<=CAM_D)continue;
+    var treeWorldX=tree.side*tree.offset*ROAD_W;
+    var treeScale=CAM_D/treeSeg.p.camera.z*W/2;
+    var treeScreenX=Math.round(W/2+treeScale*(treeWorldX-player.x*ROAD_W/2));
+    var treeScreenY=Math.round(H/2-treeScale*(treeSeg.p.world.y-CAM_H));
+    var treeW=Math.round(treeScale*100);
+    var treeH=Math.round(treeScale*tree.h);
+    if(treeScreenY<=0||treeScreenY>=H||treeW<2)continue;
+    // Trunk
+    ctx.fillStyle='#4a2a0a';
+    ctx.fillRect(treeScreenX-treeW*0.15,treeScreenY-treeH*0.4,treeW*0.3,treeH*0.4);
+    // Foliage
+    ctx.fillStyle='#0a5a0a';
+    ctx.beginPath();
+    ctx.moveTo(treeScreenX,treeScreenY-treeH);
+    ctx.lineTo(treeScreenX-treeW*0.5,treeScreenY-treeH*0.3);
+    ctx.lineTo(treeScreenX+treeW*0.5,treeScreenY-treeH*0.3);
+    ctx.fill();
+    ctx.beginPath();
+    ctx.moveTo(treeScreenX,treeScreenY-treeH*0.8);
+    ctx.lineTo(treeScreenX-treeW*0.6,treeScreenY-treeH*0.1);
+    ctx.lineTo(treeScreenX+treeW*0.6,treeScreenY-treeH*0.1);
+    ctx.fill();
   }
   }catch(e){throw new Error('DRAW:'+e.message);}
   }catch(e){throw new Error('ROAD:'+e.message);}
@@ -379,10 +413,20 @@ function resetGame(){
   for(var i=0;i<numCars;i++){
     traffic.push({
       z:Math.floor(Math.random()*trackLength),
-      x:(Math.random()*1.4-0.7)*0.8,
+      x:(Math.random()*1.4-0.7),
       speed:SEG_LEN*(20+Math.random()*30),
       color:trafficColors[i%trafficColors.length],
       w:300
+    });
+  }
+  // Init trees
+  trees=[];
+  for(var i=0;i<80;i++){
+    trees.push({
+      z:Math.floor(Math.random()*trackLength),
+      side:Math.random()>0.5?1:-1,
+      offset:1.1+Math.random()*0.8,
+      h:400+Math.random()*300
     });
   }
 }
